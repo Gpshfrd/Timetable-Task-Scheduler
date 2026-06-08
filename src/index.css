@@ -1,11 +1,50 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* colors */
+  --bg-color: #242424;
+  --bg-color-accent: #1e1e1e;
+  --text-primary: #fff;
+  --text-secondary: rgba(255, 255, 255, 0.5);
+  --text-tertiary: rgba(255, 255, 255, 0.3);
+  --bg-accent-lines:rgba(255, 255, 255, 0.1);
+
+  --task-done-alpha: 0.75;
+  --task-color-1: 160, 204, 222;
+  --task-color-2: 255, 158, 185;
+  --task-color-3: 255, 126, 126;
+  --task-color-4: 255, 180, 122;
+  --task-color-5: 255, 253, 143;
+  --task-color-6: 178, 255, 178;
+  --task-color-7: 154, 165, 254;
+  --task-color-8: 244, 172, 255;
+
+  /* fonts */
+  --font-family: Inter, sans-serif;
+  --font-header: 600 18px var(--font-family);
+  --font-user-name: 500 14px var(--font-family);
+
+  --font-day-label: 500 14px var(--font-family);
+  --font-time-label: 400 14px var(--font-family);
+  --font-now-time: 700 12px var(--font-family);
+
+  --font-task-group: 500 12px var(--font-family);
+  --font-task-title: 700 12px var(--font-family);
+  --font-task-time: 400 12px var(--font-family);
+
+  --font-panel-title: 600 16px var(--font-family);
+  --font-panel-group: 500 14px var(--font-family);
+  --font-panel-task: 700 14px var(--font-family); 
+
+  /*radiuces*/
+  --border-radius-timetable: 15px;
+  --border-radius-task: 5px;
+
+  font-family: system-ui, Inter, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: var(--bg-color);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -31,8 +70,27 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+}
+
+h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: lighter;
+}
+
+p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: medium;
 }
 
 button {
@@ -46,6 +104,7 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }

@@ -1,0 +1,120 @@
+.timetable {
+    margin: 16px 32px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    background: var(--bg-color-accent);
+    border-radius: var(--border-radius-timetable);
+    overflow: auto;
+}
+
+.timetable__days-container {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    position: sticky;
+    padding: 0 24px 0 3px;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(to bottom, rgb(30, 30, 30) 0%, transparent 100%);
+}
+
+.timetable__days {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 12px 0 6px;
+    color: var(--text-secondary);
+    font: var(--font-day-label);
+}
+
+.timetable__day--today {
+    color: var(--text-primary);
+}
+
+.timetable__time-container {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    padding: 0 24px 0 16px;
+}
+
+.timetable__time {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--px-per-hour) - 14px);
+    text-wrap: nowrap;
+    color: rgba(255, 255, 255, 0.5);
+    font: var(--font-time-label);
+}
+
+.timetable__container {
+    --table-offset: 8px;
+    top: var(--table-offset);
+    position: relative;
+    flex-grow: 1;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 10px 1fr;
+}
+
+.timetable__lines {
+    position: relative;
+    background: 
+        repeating-linear-gradient(
+            to bottom,
+            transparent 1px,
+            transparent var(--px-per-hour),
+            rgba(255, 255, 255, 0.1) var(--px-per-hour),
+            rgba(255, 255, 255, 0.1) calc(var(--px-per-hour) + 1px)
+        ); 
+}
+
+.timetable__body {
+    display: grid;
+    grid-template-rows: repeat(24, var(--px-per-hour));
+    grid-template-columns: repeat(5, 1fr);
+    border-top: 1px solid #2e2e2e;
+    border-left: 1px solid #2e2e2e;
+    position: relative;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent calc(var(--px-per-hour) - 1px),
+            rgba(255, 255, 255, 0.1) var(--px-per-hour)
+        ),
+        repeating-linear-gradient(
+            to right,
+            transparent 0,
+            transparent calc(100% / 5 - 1px),
+            rgba(255, 255, 255, 0.1) calc(100% / 5)
+        );
+}
+
+.now-line {
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background: var(--text-primary);
+}
+
+.now-line::before {
+    content: attr(data-time);
+    font: var(--font-now-time);
+    background-color: var(--bg-color-accent);
+    position: absolute;
+    right: 100%;
+    margin-right: 8px;
+    top: -7px;
+    font-size: 12px;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.scheduled-task {
+    position: absolute;
+    left: calc(var(--day-width) * var(--day-index, 0));
+    width: calc(var(--day-width) - 8px);
+}

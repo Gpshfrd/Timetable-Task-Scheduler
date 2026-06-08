@@ -1,0 +1,49 @@
+.scheduled-task {
+    display: flex;
+    justify-content: space-between;
+    text-align: start;
+    padding: 8px;
+    gap: 4px;
+    background-color: var(--bg-accent-lines);
+    border-radius: 5px;
+    border-left-width: 5px;
+    border-left-style: solid;
+}
+
+.scheduled-task:hover {
+    cursor: grab;
+}
+
+.scheduled-task:active {
+    cursor: grabbing;
+}
+
+.scheduled-task--completed {
+    border: 2px dashed;
+    background-color: transparent;
+    text-decoration: line-through;
+    color: var(--text-secondary);
+    padding-left: 12px;
+}
+
+.scheduled-task__content {
+    overflow: hidden;
+}
+
+.scheduled-task__title {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.scheduled-task__delete {
+    padding: 0;
+    height: fit-content;
+    background-color: transparent;
+    border: none;
+}
+
+.scheduled-task__delete:hover {
+    border: none;
+}

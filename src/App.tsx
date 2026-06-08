@@ -1,33 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import Header from './components/Header/Header'
+import TimeTable from './components/TimeTable/TimeTable'
+import { useRef, useState } from 'react'
+import TaskLibrary from './components/TaskLibrary/TaskLibrary'
+import { useTasks } from './hooks/useTasks'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { tasks, createTask, toggleTask, deleteTask, updateTaskSchedule } = useTasks();
+  const draggedTaskRef = useRef<{ id: string, title: string, duration?: number } | null>(null);
+  const [, forceUpdate] = useState({});
+
+  const handleDragStart = (taskId: string, taskTitle: string, duration?: number) => {
+    draggedTaskRef.current = { id: taskId, title: taskTitle, duration };
+    forceUpdate({})
+  }
+
+  const handleDragEnd = () => {
+      draggedTaskRef.current = null;
+      forceUpdate({});
+  };
+
+  const handleLibraryDrop = (taskId: string) => {
+    updateTaskSchedule(taskId, undefined as any)
+    draggedTaskRef.current = null;
+    forceUpdate({})
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Header />
+      <TimeTable 
+        tasks={tasks}
+        onCreateTask={createTask}
+        onToggleTask={toggleTask}
+        onDeleteTask={deleteTask}
+        onUpdateTaskSchedule={updateTaskSchedule}
+        draggedTask={draggedTaskRef.current}
+        onClearDraggedTask={() => {
+          draggedTaskRef.current = null;
+          forceUpdate({});
+        }}
+        onDragStart={handleDragStart}
+      />
+      {/* side pannel */}
+      <TaskLibrary 
+        tasks={tasks} 
+        onCreateTask={createTask} 
+        draggedTask={draggedTaskRef.current} 
+        onDragEnd={handleDragEnd} 
+        onDragStart={handleDragStart} 
+        onDrop={handleLibraryDrop} 
+        onDeleteTask={deleteTask} />
     </>
   )
 }

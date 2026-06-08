@@ -1,0 +1,287 @@
+import { useState, useEffect, useRef } from "react";
+import "./TimeTable.css";
+import { formatTime, getNowLineMinutes, roundToStep } from "../../utils/time";
+import { formatDate, getFiveWeekDays } from "../../utils/date";
+import type { TaskModel } from "../../models/task";
+import CreateTaskModal from "../CreateTaskModal/CreateTaskModal";
+import ScheduledTask from "../ScheduledTask/ScheduledTask";
+import { clampMinutes, minutesToPx, PX_PER_HOUR, PX_PER_MINUTE, pxToMinutes } from "../../constants/time";
+
+interface TimeTableProps {
+    tasks: TaskModel[];
+    onCreateTask: (data: any) => void;
+    onToggleTask: (taskId: string) => void;
+    onDeleteTask: (taskId: string) => void;
+    onUpdateTaskSchedule: (taskId: string, schedule: { dayIndex: number; startMinutes: number; endMinutes: number }) => void;
+    draggedTask: { id: string, title: string, duration?: number } | null;
+    onClearDraggedTask: () => void;
+    onDragStart?: (taskId: string, taskTitle: string, duration: number) => void;
+}
+
+function TimeTable({
+    tasks, 
+    onCreateTask, 
+    onToggleTask, 
+    onDeleteTask, 
+    onUpdateTaskSchedule,
+    draggedTask,
+    onClearDraggedTask,
+    onDragStart
+}: TimeTableProps) {
+    const today = new Date();
+    const [nowMinutes, setNowMinutes] = useState(() => getNowLineMinutes());
+    const timetableRef = useRef<HTMLDivElement>(null);
+    const nowLineRef = useRef<HTMLDivElement>(null);
+    const timetableBodyRef = useRef<HTMLDivElement>(null);
+    const [bodyWidth, setBodyWidth] = useState(0);
+
+    const intervalRef = useRef<number | null>(null);
+
+    const [modalData, setModalData] =  useState<null | {
+        dayIndex: number;
+        startMinutes: number;
+    }>(null);
+
+    const [dragOverDay, setDragOverDay] = useState<number | null>(null);
+
+    useEffect(() => {
+        const updateWidth = () => {
+            if (timetableBodyRef.current) {
+                setBodyWidth(timetableBodyRef.current.clientWidth);
+            }
+        };
+        
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        
+        return () => window.removeEventListener('resize', updateWidth);
+    }, []);
+
+    const dayWidth = bodyWidth / 5;
+
+    useEffect(() => {
+        function update() {
+            setNowMinutes(getNowLineMinutes());
+        }
+
+        update();
+
+        const now = new Date();
+        const delay = (60 - now.getSeconds()) * 1000 + (1000 - now.getMilliseconds());
+
+        const timeout = setTimeout(() => {
+            update();
+            intervalRef.current = setInterval(update, 60_000);
+        }, delay);
+
+        return () => { 
+            clearTimeout(timeout);
+            if (intervalRef.current) clearInterval(intervalRef.current);
+        };
+    }, []);
+
+    // Auto scroll to current time on mount
+    useEffect(() => {
+        const container = timetableRef.current;
+        const nowLine = nowLineRef.current;
+
+        if (!container || !nowLine) return;
+
+        const containerHeight = container.clientHeight;
+        const lineOffset = nowLine.offsetTop;
+
+        container.scrollTo({
+            top: lineOffset - containerHeight / 2,
+            behavior: 'smooth'
+        })
+
+    }, [])
+
+    const handleDragStart = (taskId: string, taskTitle: string) => {
+        const task = tasks.find(t => t.id === taskId);
+        const duration = task?.scheduled
+            ? task.scheduled.endMinutes - task.scheduled.startMinutes
+            : PX_PER_HOUR
+
+        if (onDragStart) {
+            onDragStart(taskId, taskTitle, duration);
+        }
+    }
+
+    function handleTimelineClick(e: React.MouseEvent<HTMLDivElement>) {
+        if ((e.target as HTMLElement).closest('.task')) return;
+
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        const y = e.clientY - rect.top;
+        const minutes = pxToMinutes(y);
+        
+        const x = e.clientX - rect.left;
+        const dayWidth = rect.width / 5;
+        const dayIndex = Math.floor(x / dayWidth);
+
+        setModalData({
+            dayIndex,
+            startMinutes: roundToStep(clampMinutes(minutes)),
+        });
+    }
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'move';
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const dayWidth = rect.width / 5;
+        const dayIndex = Math.floor(x / dayWidth);
+        setDragOverDay(Math.min(Math.max(dayIndex, 0), 4));
+    }
+
+    const handleDragLeave = () => {
+        setDragOverDay(null);
+    }
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!draggedTask) {
+            return;
+        }
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+        const minutes = pxToMinutes(y);
+
+        const x = e.clientX - rect.left;
+        const dayWidth = rect.width / 5;
+        const dayIndex = Math.floor(x / dayWidth);
+        const validDayIndex = Math.min(Math.max(dayIndex, 0), 4);
+
+        const clampedMinutes = clampMinutes(minutes);
+        const startMinutes = roundToStep(clampedMinutes);
+        
+        const duration = draggedTask.duration || PX_PER_HOUR;
+        const endMinutes = startMinutes + duration;
+
+        onUpdateTaskSchedule(draggedTask.id, {
+            dayIndex: validDayIndex,
+            startMinutes,
+            endMinutes
+        });
+
+        onClearDraggedTask();
+        setDragOverDay(null);
+    }
+
+    const scheduledTasks = tasks.filter(task => task.scheduled && task.id !== draggedTask?.id);
+
+    const scheduled = {
+        dayIndex: modalData?.dayIndex!,
+        startMinutes: modalData?.startMinutes!,
+        endMinutes: modalData?.startMinutes! + 60
+    }
+
+    const nowLineTop = minutesToPx(nowMinutes);
+    const bodyMinHeight = PX_PER_HOUR * 24;
+
+    return (
+        <>
+            <div className="timetable" ref={timetableRef}>
+                <div className="timetable__days-container">
+                    <div></div>
+                    <div className="timetable__days">
+                        {getFiveWeekDays(today).map((day, index) => (
+                            <p 
+                                key={day.toDateString()} 
+                                className={day.getDate() === today.getDate() ? 'timetable__day--today' : ''}
+                                style={{
+                                    backgroundColor: dragOverDay === index ? 'rgba(255,255,255,0.1)' : 'transparent'
+                                }}
+                            >
+                                {formatDate(day)}
+                            </p>
+                        ))}
+                    </div>
+                </div>
+                <div 
+                    className="timetable__time-container"
+                    style={{
+                        '--px-per-minute': `${PX_PER_MINUTE}px`,
+                        '--px-per-hour': `${PX_PER_HOUR}px`
+                    } as React.CSSProperties}
+                >
+                    <div className="timetable__time">
+                        {Array.from({length: 24}).map((_, index) => (
+                            <p key={index}>{index === 0 ? '0 AM' : index < 12 ? `${index} AM` : index === 12 ? '12 PM' : `${index - 12} PM`}</p>
+                        ))}
+                    </div>
+                    <div 
+                        className="timetable__container">
+                        <div className="timetable__lines"></div>
+                        <div
+                            className="timetable__body" 
+                            ref={timetableBodyRef}
+                            onClick={handleTimelineClick}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                            style={
+                                {
+                                '--day-width': `${dayWidth}px`,
+                                position: 'relative',
+                                minHeight: `${bodyMinHeight}px`
+                                } as React.CSSProperties
+                            }
+                        >
+                            {scheduledTasks.map(task => {
+                                return (
+                                    <ScheduledTask 
+                                        key={task.id} 
+                                        task={task} 
+                                        onToggleComplete={() => onToggleTask(task.id)} 
+                                        onDelete={() => onDeleteTask(task.id)}
+                                        onDragStart={handleDragStart}
+                                        onDragEnd={onClearDraggedTask}
+                                        />
+                                )
+                            })}
+
+                            {dragOverDay !== null && (
+                                <div 
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: `${(dragOverDay / 5) * 100}%`,
+                                        width: '20%',
+                                        height: '100%',
+                                        backgroundColor: 'rgba(255,255,255,0.1)',
+                                        borderLeft: 'none',
+                                        pointerEvents: 'none',
+                                        zIndex: 10,
+                                    }}
+                                />
+                            )}
+                        </div>
+                        <div 
+                            className="now-line" 
+                            style={{top: `${nowLineTop}px`}} 
+                            ref={nowLineRef} 
+                            data-time={formatTime(nowMinutes)} 
+                        />
+                    </div>
+                    {modalData && (
+                        <CreateTaskModal
+                            scheduled={scheduled}
+                            onClose={() => setModalData(null)}
+                            onCreate={onCreateTask}
+                        ></CreateTaskModal>
+                    )}
+                </div>
+            </div>
+        </>
+    )
+}
+
+export default TimeTable;

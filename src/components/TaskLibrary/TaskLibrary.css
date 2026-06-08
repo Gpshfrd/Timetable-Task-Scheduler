@@ -1,0 +1,81 @@
+.task-library {
+    margin: 0 32px 16px;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 48px;
+    background: var(--bg-color-accent);
+    border-radius: var(--border-radius-timetable);
+    overflow: hidden;
+}
+
+.add-button {
+    background-color: var(--bg-accent-lines);
+    padding: 16px 16px;
+    width: 45px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-button__drag-over {
+    background-color: red;
+}
+
+.task-library__list {
+    align-items: center;
+    flex: 1;
+    overflow-y: hidden;
+    display: grid;
+    grid-auto-flow: column;
+    min-width: 0;
+}
+
+.task-library__item {
+    color: var(--text-primary);
+    background-color: var(--bg-accent-lines);
+    display: flex;
+    position: relative;
+    width: 15vw;
+    max-height: 10%;
+    padding: 16px 16px;
+    align-items: center;
+    text-align: start;
+    border-radius: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 24px;
+    user-select: none;
+    -webkit-user-drag: element;
+    flex-shrink: 0;
+    cursor: grab;
+}
+
+.task-library__item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background-color: var(--task-color);
+    border-radius: 5px 0 0 5px; 
+}
+
+.task-library__item:hover {
+    cursor: grab;
+}
+
+.task-library__item:active {
+    cursor: grabbing;
+}
+
+.task-library__item span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
