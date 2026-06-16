@@ -1,6 +1,7 @@
 import { minutesToPx } from '../../constants/time';
 import type { TaskModel } from '../../models/task';
 import { formatTime } from '../../utils/time';
+import removeIcon from '../../assets/remove.svg'
 import './ScheduledTask.css';
 
 interface ScheduledTaskProps {
@@ -92,7 +93,7 @@ function ScheduledTask({
                 className="scheduled-task__delete"
                 onClick={handleDeleteClick}
             >
-                <img src="src/assets/remove.svg"></img>
+                <img src={removeIcon} />
             </button>
         </div>
     )

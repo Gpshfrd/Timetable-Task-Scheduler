@@ -3,6 +3,8 @@ import './TaskLibrary.css'
 import CreateTaskModal from "../CreateTaskModal/CreateTaskModal";
 import type { TaskModel } from "../../models/task";
 import { PX_PER_HOUR } from "../../constants/time";
+import addIcon from '../../assets/add.svg';
+import deleteIcon from '../../assets/delete.svg';
 
 interface TaskLibraryProps {
     tasks: TaskModel[];
@@ -122,9 +124,9 @@ function TaskLibrary({ tasks, onCreateTask, draggedTask, onDragStart, onDragEnd,
                 >
                     {draggedTask 
                         ? 
-                        <img src="src/assets/delete.svg" />
+                        <img src={deleteIcon} />
                         : 
-                        <img src="src/assets/add.svg" />
+                        <img src={addIcon} />
                     }
                     
                 </button>
