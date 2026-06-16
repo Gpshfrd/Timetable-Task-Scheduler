@@ -1,4 +1,4 @@
-export const PX_PER_MINUTE = 1;
+export const PX_PER_MINUTE = 2;
 export const PX_PER_HOUR = PX_PER_MINUTE * 60;
 
 export const minutesToPx = (minutes: number): number => minutes * PX_PER_MINUTE;

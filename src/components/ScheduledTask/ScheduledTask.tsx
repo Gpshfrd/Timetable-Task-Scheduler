@@ -73,7 +73,7 @@ function ScheduledTask({
             style={{
                 position: 'absolute',
                 top: `${top}px`,
-                height: `${height - 17}px`,
+                height: `${height - 9}px`,
                 left: `calc(100% / 5 * ${dayIndex})`,
                 width: `calc(100% / 5 - 32px)`,
                 borderColor: `rgba(var(--task-color-${task.colorId}), ${task.completed ? 0.5 : 1})`

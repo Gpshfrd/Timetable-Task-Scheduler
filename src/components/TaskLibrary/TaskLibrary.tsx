@@ -22,8 +22,8 @@ function TaskLibrary({ tasks, onCreateTask, draggedTask, onDragStart, onDragEnd,
     const [isDeleteDragOver, setIsDeleteDragOver] = useState(false);
 
     const unscheduledTasks = tasks.filter(task => !task.scheduled && task.id !== draggedTask?.id);
-    const columnCount = 5;
-    const rowCount = unscheduledTasks.length >= 2 ? 2 : 1;
+    // const columnCount = 5;
+    // const rowCount = unscheduledTasks.length >= 2 ? 2 : 1;
 
     const onOpenModal = () => {
         setIsModalOpen(true);
@@ -55,7 +55,7 @@ function TaskLibrary({ tasks, onCreateTask, draggedTask, onDragStart, onDragEnd,
         }
 
         setTimeout(() => {
-            onDragStart(taskId, taskTitle, PX_PER_HOUR);
+            onDragStart(taskId, taskTitle, 60);
         }, 0)
     }
 
@@ -132,10 +132,6 @@ function TaskLibrary({ tasks, onCreateTask, draggedTask, onDragStart, onDragEnd,
                 </button>
                 <div 
                     className="task-library__list"
-                    style={{
-                        gridTemplateColumns: `repeat(${columnCount}, 1fr)`,
-                        gridTemplateRows: `repeat(${rowCount}, 1fr)`,
-                    }}
                 >
                     {unscheduledTasks.map(task => (
                         <div
@@ -146,7 +142,7 @@ function TaskLibrary({ tasks, onCreateTask, draggedTask, onDragStart, onDragEnd,
                             onDragEnd={onDragEnd}
                             style={{'--task-color': `rgb(var(--task-color-${task.colorId}))`} as React.CSSProperties}
                         >
-                            <span>{task.title}</span>
+                            <small>{task.title}</small>
                         </div>
                     ))}
 

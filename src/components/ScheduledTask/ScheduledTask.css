@@ -2,7 +2,7 @@
     display: flex;
     justify-content: space-between;
     text-align: start;
-    padding: 8px;
+    padding: 4px 8px;
     gap: 4px;
     background-color: var(--bg-accent-lines);
     border-radius: 5px;
