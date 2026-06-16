@@ -1,8 +1,5 @@
 .timetable {
-    margin: 16px 32px;
-    display: flex;
     flex: 1;
-    flex-direction: column;
     background: var(--bg-color-accent);
     border-radius: var(--border-radius-timetable);
     overflow: auto;
@@ -38,7 +35,7 @@
 }
 
 .timetable__time {
-    padding: 0 16px;
+    padding: 0 8px 0 0;
     display: flex;
     flex-direction: column;
     align-items: center;
