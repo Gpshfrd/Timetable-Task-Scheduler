@@ -70,5 +70,13 @@ export function useTasks() {
                 : task
         ))
     }
-    return { tasks, createTask, toggleTask, deleteTask, updateTaskSchedule };
+
+    function updateTaskDetails(taskId: string, title: string) {
+        setTasks(prev => prev.map(task => 
+            task.id === taskId
+                ? { ...task, title }
+                : task
+        ));
+    }
+    return { tasks, createTask, toggleTask, deleteTask, updateTaskSchedule, updateTaskDetails };
 }

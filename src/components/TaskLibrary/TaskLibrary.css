@@ -78,3 +78,11 @@
     text-overflow: ellipsis;
     flex: 1;
 }
+
+.task-library__edit-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--text-secondary);
+    outline: none;
+    padding: 3px 1px 2px ;
+}

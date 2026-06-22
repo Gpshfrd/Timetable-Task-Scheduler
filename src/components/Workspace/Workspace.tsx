@@ -5,7 +5,7 @@ import { useTasks } from "../../hooks/useTasks";
 import './Workspace.css';
 
 function Workspace() {
-    const { tasks, createTask, toggleTask, deleteTask, updateTaskSchedule } = useTasks();
+    const { tasks, createTask, toggleTask, deleteTask, updateTaskSchedule, updateTaskDetails } = useTasks();
     const draggedTaskRef = useRef<{ id: string, title: string, duration?: number } | null>(null);
     const [, forceUpdate] = useState({});
 
@@ -33,6 +33,7 @@ function Workspace() {
                 onToggleTask={toggleTask}
                 onDeleteTask={deleteTask}
                 onUpdateTaskSchedule={updateTaskSchedule}
+                onUpdateTaskDetails={updateTaskDetails}
                 draggedTask={draggedTaskRef.current}
                 onClearDraggedTask={() => {
                 draggedTaskRef.current = null;
@@ -45,6 +46,7 @@ function Workspace() {
                 tasks={tasks} 
                 onCreateTask={createTask} 
                 draggedTask={draggedTaskRef.current} 
+                onUpdateTaskDetails={updateTaskDetails}
                 onDragEnd={handleDragEnd} 
                 onDragStart={handleDragStart} 
                 onDrop={handleLibraryDrop} 

@@ -6,13 +6,15 @@ import type { TaskModel } from "../../models/task";
 import CreateTaskModal from "../CreateTaskModal/CreateTaskModal";
 import ScheduledTask from "../ScheduledTask/ScheduledTask";
 import { clampMinutes, minutesToPx, PX_PER_HOUR, PX_PER_MINUTE, pxToMinutes } from "../../constants/time";
+import EditTaskModal from "../EditTaskModal/EditTaskModal";
 
 interface TimeTableProps {
     tasks: TaskModel[];
     onCreateTask: (data: any) => void;
     onToggleTask: (taskId: string) => void;
     onDeleteTask: (taskId: string) => void;
-    onUpdateTaskSchedule: (taskId: string, schedule: { dayIndex: number; startMinutes: number; endMinutes: number }) => void;
+    onUpdateTaskSchedule: (taskId: string, schedule: { dayIndex: number, startMinutes: number; endMinutes: number }) => void;
+    onUpdateTaskDetails: (taskId: string, title: string) => void;
     draggedTask: { id: string, title: string, duration?: number } | null;
     onClearDraggedTask: () => void;
     onDragStart?: (taskId: string, taskTitle: string, duration: number) => void;
@@ -24,6 +26,7 @@ function TimeTable({
     onToggleTask, 
     onDeleteTask, 
     onUpdateTaskSchedule,
+    onUpdateTaskDetails,
     draggedTask,
     onClearDraggedTask,
     onDragStart
@@ -34,6 +37,7 @@ function TimeTable({
     const nowLineRef = useRef<HTMLDivElement>(null);
     const timetableBodyRef = useRef<HTMLDivElement>(null);
     const [bodyWidth, setBodyWidth] = useState(0);
+    const [editingTask, setEditingTask] = useState<TaskModel | null>(null);
 
     const intervalRef = useRef<number | null>(null);
 
@@ -166,13 +170,32 @@ function TimeTable({
         const endMinutes = startMinutes + duration;
 
         onUpdateTaskSchedule(draggedTask.id, {
-            dayIndex: validDayIndex,
+            dayIndex,
             startMinutes,
             endMinutes
         });
 
         onClearDraggedTask();
         setDragOverDay(null);
+    }
+
+    const handleEditTask = (task: TaskModel) => {
+        setEditingTask(task);
+    }
+
+    const handleSaveTask = (taskId: string, data: {
+        title: string,
+        scheduled?: {
+            dayIndex: number;
+            startMinutes: number;
+            endMinutes: number;
+        }
+    }) => {
+        if (data.scheduled) {
+            onUpdateTaskSchedule(taskId, data.scheduled);
+        }
+        onUpdateTaskDetails(taskId, data.title);
+        setEditingTask(null);
     }
 
     const scheduledTasks = tasks.filter(task => task.scheduled && task.id !== draggedTask?.id);
@@ -242,6 +265,7 @@ function TimeTable({
                                         task={task} 
                                         onToggleComplete={() => onToggleTask(task.id)} 
                                         onDelete={() => onDeleteTask(task.id)}
+                                        onEdit={handleEditTask}
                                         onDragStart={handleDragStart}
                                         onDragEnd={onClearDraggedTask}
                                         />
@@ -263,13 +287,13 @@ function TimeTable({
                                     }}
                                 />
                             )}
+                            <div 
+                                className="now-line" 
+                                style={{top: `${nowLineTop}px`}} 
+                                ref={nowLineRef} 
+                                data-time={formatTime(nowMinutes)} 
+                            />
                         </div>
-                        <div 
-                            className="now-line" 
-                            style={{top: `${nowLineTop}px`}} 
-                            ref={nowLineRef} 
-                            data-time={formatTime(nowMinutes)} 
-                        />
                     </div>
                     {modalData && (
                         <CreateTaskModal
@@ -277,6 +301,14 @@ function TimeTable({
                             onClose={() => setModalData(null)}
                             onCreate={onCreateTask}
                         ></CreateTaskModal>
+                    )}
+
+                    {editingTask && editingTask.scheduled && (
+                        <EditTaskModal
+                            task={editingTask as any}
+                            onClose={() => setEditingTask(null)}
+                            onSave={handleSaveTask}
+                        />
                     )}
                 </div>
             </div>
