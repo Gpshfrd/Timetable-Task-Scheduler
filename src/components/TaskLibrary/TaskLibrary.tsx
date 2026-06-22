@@ -2,13 +2,13 @@ import { useState } from "react";
 import './TaskLibrary.css'
 import CreateTaskModal from "../CreateTaskModal/CreateTaskModal";
 import type { TaskModel } from "../../models/task";
-import { PX_PER_HOUR } from "../../constants/time";
 import addIcon from '../../assets/add.svg';
 import deleteIcon from '../../assets/delete.svg';
 
 interface TaskLibraryProps {
     tasks: TaskModel[];
     onCreateTask: (data: any) => void;
+    onUpdateTaskDetails: (taskId: string, title: string) => void;
     draggedTask: { id: string, title: string } | null;
     onDragStart: (taskId: string, taskTitle: string, duration: number) => void;
     onDragEnd: () => void;
@@ -16,10 +16,22 @@ interface TaskLibraryProps {
     onDeleteTask: (taskId: string) => void;
 }
 
-function TaskLibrary({ tasks, onCreateTask, draggedTask, onDragStart, onDragEnd, onDrop, onDeleteTask} : TaskLibraryProps) {
+function TaskLibrary({ 
+    tasks, 
+    onCreateTask, 
+    onUpdateTaskDetails,
+    draggedTask, 
+    onDragStart, 
+    onDragEnd, 
+    onDrop, 
+    onDeleteTask
+} : TaskLibraryProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
     const [isDeleteDragOver, setIsDeleteDragOver] = useState(false);
+
+    const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+    const [editValue, setEditValue] = useState("")
 
     const unscheduledTasks = tasks.filter(task => !task.scheduled && task.id !== draggedTask?.id);
     // const columnCount = 5;
@@ -43,6 +55,32 @@ function TaskLibrary({ tasks, onCreateTask, draggedTask, onDragStart, onDragEnd,
     }) => {
         onCreateTask(data);
         onCloseModal();
+    }
+
+    const handleDoubleClick = (task: TaskModel) => {
+        setEditingTaskId(task.id);
+        setEditValue(task.title);
+    }
+
+    const handleSaveEdit = (taskId: string) => {
+        if (editValue.trim()) {
+            onUpdateTaskDetails(taskId, editValue.trim());
+        }
+        setEditingTaskId(null);
+        setEditValue("");
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent, taskId: string) => {
+        e.stopPropagation();
+        console.log('Key pressed:', e.key);
+        if (e.key === 'Enter') {
+            console.log('Enter pressed', e.key)
+            e.preventDefault();
+            handleSaveEdit(taskId);
+        } else if (e.key === 'Escape') {
+            setEditingTaskId(null);
+            setEditValue("");
+        }
     }
 
     const handleDragStart = (e: React.DragEvent, taskId: string, taskTitle: string) => {
@@ -140,9 +178,25 @@ function TaskLibrary({ tasks, onCreateTask, draggedTask, onDragStart, onDragEnd,
                             draggable
                             onDragStart={(e) => handleDragStart(e, task.id, task.title)}
                             onDragEnd={onDragEnd}
+                            onDoubleClick={() => handleDoubleClick(task)}
                             style={{'--task-color': `rgb(var(--task-color-${task.colorId}))`} as React.CSSProperties}
                         >
-                            <small>{task.title}</small>
+                            {
+                                editingTaskId === task.id ? (
+                                <input 
+                                    className="task-library__edit-input"
+                                    type="text"
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    onBlur={() => handleSaveEdit(task.id)}
+                                    onKeyDown={(e) => handleKeyDown(e, task.id)}
+                                    autoFocus
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                                ) : (
+                                    <small>{task.title}</small>
+                                )
+                            }
                         </div>
                     ))}
 
