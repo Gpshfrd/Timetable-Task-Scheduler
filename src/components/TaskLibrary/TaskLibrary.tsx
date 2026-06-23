@@ -103,6 +103,7 @@ function TaskLibrary({ tasks, onCreateTask, draggedTask, onDragStart, onDragEnd,
 
         if (draggedTask) {
             onDeleteTask(draggedTask.id)
+            onDragEnd()
         }
     }
 
