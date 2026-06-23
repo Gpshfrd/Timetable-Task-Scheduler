@@ -8,6 +8,7 @@ interface ScheduledTaskProps {
     task: TaskModel;
     onToggleComplete: () => void;
     onDelete: () => void;
+    onEdit: (task: TaskModel) => void;
     onDragStart?: (taskId: string, taskTitle: string, duration: number) => void;
     onDragEnd?: () => void; 
 }
@@ -16,6 +17,7 @@ function ScheduledTask({
     task, 
     onToggleComplete, 
     onDelete,
+    onEdit,
     onDragStart,
     onDragEnd
 }: ScheduledTaskProps) {
@@ -31,9 +33,17 @@ function ScheduledTask({
         onToggleComplete();
     }
 
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onEdit(task);
+    }
+
     const handleDeleteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        onDelete();
+        if (confirm('Delete this task?')) {
+            onDelete();
+        }
     }
 
     const handleDragStart = (e: React.DragEvent) => {
@@ -70,6 +80,7 @@ function ScheduledTask({
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onClick={handleTaskClick}
+            onContextMenu={handleContextMenu}
             style={{
                 position: 'absolute',
                 top: `${top}px`,
