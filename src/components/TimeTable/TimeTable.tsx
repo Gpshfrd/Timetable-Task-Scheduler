@@ -48,6 +48,13 @@ function TimeTable({
 
     const [dragOverDay, setDragOverDay] = useState<number | null>(null);
 
+    const isToday = (date: Date): boolean => {
+        const today = new Date();
+        return date.getDate() === today.getDate()
+            && date.getMonth() === today.getMonth()
+            && date.getFullYear() === today.getFullYear()
+    }
+
     useEffect(() => {
         const updateWidth = () => {
             if (timetableBodyRef.current) {
@@ -161,7 +168,6 @@ function TimeTable({
         const x = e.clientX - rect.left;
         const dayWidth = rect.width / 5;
         const dayIndex = Math.floor(x / dayWidth);
-        const validDayIndex = Math.min(Math.max(dayIndex, 0), 4);
 
         const clampedMinutes = clampMinutes(minutes);
         const startMinutes = roundToStep(clampedMinutes);
@@ -215,17 +221,28 @@ function TimeTable({
                 <div className="timetable__days-container">
                     <div></div>
                     <div className="timetable__days">
-                        {getFiveWeekDays(today).map((day, index) => (
-                            <p 
-                                key={day.toDateString()} 
-                                className={day.getDate() === today.getDate() ? 'timetable__day--today' : ''}
-                                style={{
-                                    backgroundColor: dragOverDay === index ? 'rgba(255,255,255,0.1)' : 'transparent'
-                                }}
-                            >
-                                {formatDate(day)}
-                            </p>
-                        ))}
+                        {getFiveWeekDays(today).map((day, index) => {
+                            const isTodayDay = isToday(day);
+                            const weekday = day.toLocaleDateString('en-US', { weekday: 'long' });
+                            const dayNumber = day.getDate();
+                            
+                            return (
+                                <div 
+                                    key={day.toDateString()} 
+                                    className="timetable__day-wrapper"
+                                    style={{
+                                        backgroundColor: dragOverDay === index ? 'rgba(255,255,255,0.1)' : 'transparent'
+                                    }}
+                                >
+                                    <div className="timetable__day">
+                                        <span className='timetable__day-name'>{weekday}</span>
+                                        <span className={isTodayDay ? 'timetable__day-number--today' : 'timetable__day-number'}>
+                                            {dayNumber}
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
                 <div 
