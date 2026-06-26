@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import "./TimeTable.css";
 import { formatTime, getNowLineMinutes, roundToStep } from "../../utils/time";
-import { formatDate, getFiveWeekDays } from "../../utils/date";
+import { getWeekDays } from "../../utils/date";
 import type { TaskModel } from "../../models/task";
 import CreateTaskModal from "../CreateTaskModal/CreateTaskModal";
 import ScheduledTask from "../ScheduledTask/ScheduledTask";
 import { clampMinutes, minutesToPx, PX_PER_HOUR, PX_PER_MINUTE, pxToMinutes } from "../../constants/time";
 import EditTaskModal from "../EditTaskModal/EditTaskModal";
+import arrowIcon from "../../assets/Arrow.svg"
 
 interface TimeTableProps {
     tasks: TaskModel[];
@@ -31,13 +32,14 @@ function TimeTable({
     onClearDraggedTask,
     onDragStart
 }: TimeTableProps) {
-    const today = new Date();
     const [nowMinutes, setNowMinutes] = useState(() => getNowLineMinutes());
     const timetableRef = useRef<HTMLDivElement>(null);
     const nowLineRef = useRef<HTMLDivElement>(null);
     const timetableBodyRef = useRef<HTMLDivElement>(null);
     const [bodyWidth, setBodyWidth] = useState(0);
     const [editingTask, setEditingTask] = useState<TaskModel | null>(null);
+    const [weekOffset, setWeekOffset] = useState(0);
+    const [weekDays, setWeekDays] = useState<Date[]>(() => getWeekDays(0));
 
     const intervalRef = useRef<number | null>(null);
 
@@ -107,6 +109,10 @@ function TimeTable({
         })
 
     }, [])
+
+    useEffect(() => {
+        setWeekDays(getWeekDays(weekOffset));
+    }, [weekOffset])
 
     const handleDragStart = (taskId: string, taskTitle: string) => {
         const task = tasks.find(t => t.id === taskId);
@@ -204,6 +210,14 @@ function TimeTable({
         setEditingTask(null);
     }
 
+    const handlePrevWeek = () => {
+        setWeekOffset(prev => prev - 1);
+    }
+
+    const handleNextWeek = () => {
+        setWeekOffset(prev => prev + 1);
+    }
+
     const scheduledTasks = tasks.filter(task => task.scheduled && task.id !== draggedTask?.id);
 
     const scheduled = {
@@ -220,8 +234,10 @@ function TimeTable({
             <div className="timetable" ref={timetableRef}>
                 <div className="timetable__days-container">
                     <div></div>
+                    <img src={arrowIcon} onClick={handlePrevWeek} className="arrow arrow-left"></img>
+                    <img src={arrowIcon} onClick={handleNextWeek} className="arrow arrow-right"></img>
                     <div className="timetable__days">
-                        {getFiveWeekDays(today).map((day, index) => {
+                        {weekDays.map((day, index) => {
                             const isTodayDay = isToday(day);
                             const weekday = day.toLocaleDateString('en-US', { weekday: 'long' });
                             const dayNumber = day.getDate();

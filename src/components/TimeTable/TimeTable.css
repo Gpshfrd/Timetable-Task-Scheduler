@@ -6,13 +6,32 @@
 }
 
 .timetable__days-container {
+    position: relative;
     display: grid;
-    grid-template-columns: 90px 1fr;
+    grid-template-columns: 70px 1fr;
     position: sticky;
     padding: 0 24px 0 3px;
     top: 0;
     z-index: 10;
     background: linear-gradient(to bottom, rgb(30, 30, 30) 0%, transparent 100%);
+}
+
+.arrow {
+    position: absolute;
+    top: 24px;
+}
+
+.arrow:hover {
+    cursor: pointer;
+}
+
+.arrow-left {
+    left: 70px; 
+}
+
+.arrow-right {
+    right: 24px;
+    transform: rotate(180deg);
 }
 
 .timetable__days {
