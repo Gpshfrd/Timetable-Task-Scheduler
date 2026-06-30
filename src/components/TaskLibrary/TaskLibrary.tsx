@@ -48,7 +48,7 @@ function TaskLibrary({
     const handleCreateTask = (data: {
         title: string;
         scheduled?: {
-            dayIndex: number;
+            date: string;
             startMinutes: number;
             endMinutes: number;
         }

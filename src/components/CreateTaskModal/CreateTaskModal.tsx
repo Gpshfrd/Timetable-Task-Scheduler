@@ -4,7 +4,7 @@ import { minutesToTimeString, roundToStep, timeStringToMinutes } from "../../uti
 
 interface Props {
     scheduled?: {
-        dayIndex: number;
+        date: string;
         startMinutes: number;
         endMinutes: number;
     }
@@ -12,7 +12,7 @@ interface Props {
     onCreate: (data: {
         title: string,
         scheduled?: {
-            dayIndex: number,
+            date: string,
             startMinutes: number,
             endMinutes: number,
         }
@@ -50,7 +50,7 @@ function CreateTaskModal({
         const taskData: {
             title: string,
             scheduled?: {
-                dayIndex: number;
+                date: string;
                 startMinutes: number;
                 endMinutes: number;
             };
@@ -60,7 +60,7 @@ function CreateTaskModal({
 
         if (scheduled) {
             taskData.scheduled = {
-                dayIndex: scheduled.dayIndex,
+                date: scheduled.date,
                 startMinutes: start,
                 endMinutes: end
             }

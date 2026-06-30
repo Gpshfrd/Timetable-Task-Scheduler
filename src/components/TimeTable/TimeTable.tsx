@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import "./TimeTable.css";
 import { formatTime, getNowLineMinutes, roundToStep } from "../../utils/time";
 import { getWeekDays } from "../../utils/date";
-import type { TaskModel } from "../../models/task";
+import { getDateKey, type TaskModel } from "../../models/task";
 import CreateTaskModal from "../CreateTaskModal/CreateTaskModal";
 import ScheduledTask from "../ScheduledTask/ScheduledTask";
 import { clampMinutes, minutesToPx, PX_PER_HOUR, PX_PER_MINUTE, pxToMinutes } from "../../constants/time";
@@ -14,7 +14,7 @@ interface TimeTableProps {
     onCreateTask: (data: any) => void;
     onToggleTask: (taskId: string) => void;
     onDeleteTask: (taskId: string) => void;
-    onUpdateTaskSchedule: (taskId: string, schedule: { dayIndex: number, startMinutes: number; endMinutes: number }) => void;
+    onUpdateTaskSchedule: (taskId: string, schedule: { date: string, startMinutes: number; endMinutes: number }) => void;
     onUpdateTaskDetails: (taskId: string, title: string) => void;
     draggedTask: { id: string, title: string, duration?: number } | null;
     onClearDraggedTask: () => void;
@@ -45,6 +45,7 @@ function TimeTable({
 
     const [modalData, setModalData] =  useState<null | {
         dayIndex: number;
+        date: string;
         startMinutes: number;
     }>(null);
 
@@ -137,8 +138,12 @@ function TimeTable({
         const dayWidth = rect.width / 5;
         const dayIndex = Math.floor(x / dayWidth);
 
+        const selectedDate = weekDays[dayIndex];
+        const dateKey = getDateKey(selectedDate);
+
         setModalData({
             dayIndex,
+            date: dateKey,
             startMinutes: roundToStep(clampMinutes(minutes)),
         });
     }
@@ -175,6 +180,9 @@ function TimeTable({
         const dayWidth = rect.width / 5;
         const dayIndex = Math.floor(x / dayWidth);
 
+        const selectedDate = weekDays[dayIndex];
+        const dateKey = getDateKey(selectedDate);
+
         const clampedMinutes = clampMinutes(minutes);
         const startMinutes = roundToStep(clampedMinutes);
         
@@ -182,7 +190,7 @@ function TimeTable({
         const endMinutes = startMinutes + duration;
 
         onUpdateTaskSchedule(draggedTask.id, {
-            dayIndex,
+            date: dateKey,
             startMinutes,
             endMinutes
         });
@@ -198,7 +206,7 @@ function TimeTable({
     const handleSaveTask = (taskId: string, data: {
         title: string,
         scheduled?: {
-            dayIndex: number;
+            date: string;
             startMinutes: number;
             endMinutes: number;
         }
@@ -218,13 +226,19 @@ function TimeTable({
         setWeekOffset(prev => prev + 1);
     }
 
-    const scheduledTasks = tasks.filter(task => task.scheduled && task.id !== draggedTask?.id);
+    const weekDateKeys = weekDays.map(day => getDateKey(day));
 
-    const scheduled = {
-        dayIndex: modalData?.dayIndex!,
-        startMinutes: modalData?.startMinutes!,
-        endMinutes: modalData?.startMinutes! + 60
-    }
+    const scheduledTasks = tasks.filter(task => {
+        if (!task.scheduled) return false;
+        if (task.id === draggedTask?.id) return false;
+        return weekDateKeys.includes(task.scheduled.date);
+    });
+
+    const scheduled = modalData ? {
+        date: modalData.date,
+        startMinutes: modalData.startMinutes,
+        endMinutes: modalData.startMinutes + 60
+    } : undefined;
 
     const nowLineTop = minutesToPx(nowMinutes);
     const bodyMinHeight = PX_PER_HOUR * 24;
@@ -292,10 +306,20 @@ function TimeTable({
                             }
                         >
                             {scheduledTasks.map(task => {
+                                const taskDate = new Date(task.scheduled!.date);
+                                const dayIndex = weekDays.findIndex(day => {
+                                    return day.getDate() === taskDate.getDate() &&
+                                    day.getMonth() === taskDate.getMonth() &&
+                                    day.getFullYear() === taskDate.getFullYear()
+                                })
+
+                                if (dayIndex === -1) return null;
+
                                 return (
                                     <ScheduledTask 
                                         key={task.id} 
                                         task={task} 
+                                        dayIndex={dayIndex}
                                         onToggleComplete={() => onToggleTask(task.id)} 
                                         onDelete={() => onDeleteTask(task.id)}
                                         onEdit={handleEditTask}

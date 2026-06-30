@@ -6,6 +6,7 @@ import './ScheduledTask.css';
 
 interface ScheduledTaskProps {
     task: TaskModel;
+    dayIndex: number;
     onToggleComplete: () => void;
     onDelete: () => void;
     onEdit: (task: TaskModel) => void;
@@ -15,6 +16,7 @@ interface ScheduledTaskProps {
 
 function ScheduledTask({ 
     task, 
+    dayIndex,
     onToggleComplete, 
     onDelete,
     onEdit,
@@ -23,7 +25,7 @@ function ScheduledTask({
 }: ScheduledTaskProps) {
     if (!task.scheduled) return null;
 
-    const { dayIndex, startMinutes, endMinutes } = task.scheduled;
+    const { date, startMinutes, endMinutes } = task.scheduled;
 
     const top = minutesToPx(startMinutes);
     const height = minutesToPx(endMinutes - startMinutes);

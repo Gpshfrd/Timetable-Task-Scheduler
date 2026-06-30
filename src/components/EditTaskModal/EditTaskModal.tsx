@@ -9,7 +9,7 @@ interface Props {
     onSave: (taskId: string, data: {
         title: string,
         scheduled?: {
-            dayIndex: number;
+            date: string;
             startMinutes: number;
             endMinutes: number;
         }
@@ -44,7 +44,7 @@ function EditTaskModal({
             onSave(task.id, {
                 title: title.trim(),
                 scheduled: {
-                    dayIndex: task.scheduled.dayIndex,
+                    date: task.scheduled.date,
                     startMinutes: start,
                     endMinutes: end
                 }
