@@ -8,6 +8,7 @@
     background: var(--bg-color-accent);
     border-radius: var(--border-radius-timetable);
     overflow: hidden;
+    height: 100%;
 }
 
 .add-button {
@@ -30,7 +31,7 @@
     overflow-y: hidden;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
     min-width: 0;
 }
 

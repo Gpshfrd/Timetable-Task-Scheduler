@@ -59,7 +59,7 @@ function EditTaskModal({
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <form className="modal" onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
                 <h2>Edit task</h2>
                 <div className="modal__inputs-container">
                     <div className="modal__input-container">
@@ -97,7 +97,7 @@ function EditTaskModal({
                     <button type="button" onClick={onClose}>Cancel</button>
                     <button type="submit" onClick={handleSubmit}>Save</button>
                 </div>
-            </div>
+            </form>
         </div>
     );
 }

@@ -46,7 +46,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
 }
 
 .timetable__day-name {
@@ -60,13 +59,16 @@
 }
 
 .timetable__day-number {
+    margin-top: 8px;
     color: var(--text-primary);
 }
 
 .timetable__day-number--today {
+    margin-top: 4px;
     background-color: #ff4444;
     color: var(--text-primary);
     border-radius: 50%;
+    width: 16px;
     padding: 4px;
     display: flex;
     align-items: center;
