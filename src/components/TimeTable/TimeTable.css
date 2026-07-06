@@ -63,11 +63,21 @@
     color: var(--text-primary);
 }
 
-.timetable__day-number--today {
+.timetable__day-number--focused {
     margin-top: 4px;
     background-color: #ff4444;
     color: var(--text-primary);
     border-radius: 50%;
+    width: 16px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timetable__day-number--today {
+    margin-top: 6px;
+    color: #ff4444;
     width: 16px;
     padding: 4px;
     display: flex;

@@ -18,7 +18,6 @@ interface TimeTableProps {
     draggedTask: { id: string, title: string, duration?: number } | null;
     onClearDraggedTask: () => void;
     onDragStart?: (taskId: string, taskTitle: string, duration: number) => void;
-    weekOffset?: number;
     selectedDate: Date | null;
 }
 
@@ -32,7 +31,6 @@ function TimeTable({
     draggedTask,
     onClearDraggedTask,
     onDragStart,
-    weekOffset: externalWeekOffset = 0,
     selectedDate
 }: TimeTableProps) {
     const [nowMinutes, setNowMinutes] = useState(() => getNowLineMinutes());
@@ -41,7 +39,6 @@ function TimeTable({
     const timetableBodyRef = useRef<HTMLDivElement>(null);
     const [bodyWidth, setBodyWidth] = useState(0);
     const [editingTask, setEditingTask] = useState<TaskModel | null>(null);
-    const [weekOffset, setWeekOffset] = useState(externalWeekOffset);
     const [weekDays, setWeekDays] = useState<Date[]>(() => {
         const center = selectedDate || new Date();
         return getWeekDays(center);
@@ -138,11 +135,7 @@ function TimeTable({
         const newWeekDays = getWeekDays(selectedDate);
         setWeekDays(newWeekDays);
 
-    }, [weekOffset, selectedDate])
-
-    useEffect(() => {
-        setWeekOffset(externalWeekOffset);
-    }, [externalWeekOffset])
+    }, [selectedDate])
 
     const handleDragStart = (taskId: string, taskTitle: string) => {
         const task = tasks.find(t => t.id === taskId);
@@ -257,6 +250,7 @@ function TimeTable({
                             const isTodayDay = isToday(day);
                             const weekday = day.toLocaleDateString('en-US', { weekday: 'long' });
                             const dayNumber = day.getDate();
+                            const isSelectedDay = (JSON.stringify(day) === JSON.stringify(selectedDate));
                             
                             return (
                                 <div 
@@ -268,7 +262,7 @@ function TimeTable({
                                 >
                                     <div className="timetable__day">
                                         <span className='timetable__day-name'>{weekday}</span>
-                                        <span className={isTodayDay ? 'timetable__day-number--today' : 'timetable__day-number'}>
+                                        <span className={isSelectedDay ? 'timetable__day-number--focused' : isTodayDay ? 'timetable__day-number--today' : 'timetable__day-number'}>
                                             {dayNumber}
                                         </span>
                                     </div>

@@ -140,7 +140,9 @@ function TaskLibrary({
         setIsDragOver(false);
 
         if (draggedTask) {
-            onDeleteTask(draggedTask.id)
+            if (confirm('Delete this task?')) {
+                onDeleteTask(draggedTask.id)
+            }
             onDragEnd()
         }
     }
