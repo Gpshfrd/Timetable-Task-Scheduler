@@ -7,7 +7,6 @@ import CreateTaskModal from "../CreateTaskModal/CreateTaskModal";
 import ScheduledTask from "../ScheduledTask/ScheduledTask";
 import { clampMinutes, minutesToPx, PX_PER_HOUR, PX_PER_MINUTE, pxToMinutes } from "../../constants/time";
 import EditTaskModal from "../EditTaskModal/EditTaskModal";
-import arrowIcon from "../../assets/Arrow.svg"
 
 interface TimeTableProps {
     tasks: TaskModel[];
@@ -19,6 +18,8 @@ interface TimeTableProps {
     draggedTask: { id: string, title: string, duration?: number } | null;
     onClearDraggedTask: () => void;
     onDragStart?: (taskId: string, taskTitle: string, duration: number) => void;
+    weekOffset?: number;
+    selectedDate: Date | null;
 }
 
 function TimeTable({
@@ -30,7 +31,9 @@ function TimeTable({
     onUpdateTaskDetails,
     draggedTask,
     onClearDraggedTask,
-    onDragStart
+    onDragStart,
+    weekOffset: externalWeekOffset = 0,
+    selectedDate
 }: TimeTableProps) {
     const [nowMinutes, setNowMinutes] = useState(() => getNowLineMinutes());
     const timetableRef = useRef<HTMLDivElement>(null);
@@ -38,8 +41,11 @@ function TimeTable({
     const timetableBodyRef = useRef<HTMLDivElement>(null);
     const [bodyWidth, setBodyWidth] = useState(0);
     const [editingTask, setEditingTask] = useState<TaskModel | null>(null);
-    const [weekOffset, setWeekOffset] = useState(0);
-    const [weekDays, setWeekDays] = useState<Date[]>(() => getWeekDays(0));
+    const [weekOffset, setWeekOffset] = useState(externalWeekOffset);
+    const [weekDays, setWeekDays] = useState<Date[]>(() => {
+        const center = selectedDate || new Date();
+        return getWeekDays(center);
+    });
 
     const intervalRef = useRef<number | null>(null);
 
@@ -58,6 +64,25 @@ function TimeTable({
             && date.getFullYear() === today.getFullYear()
     }
 
+    const dayWidth = bodyWidth / 5;
+
+    const weekDateKeys = weekDays.map(day => getDateKey(day));
+
+    const scheduledTasks = tasks.filter(task => {
+        if (!task.scheduled) return false;
+        if (task.id === draggedTask?.id) return false;
+        return weekDateKeys.includes(task.scheduled.date);
+    });
+
+    const scheduled = modalData ? {
+        date: modalData.date,
+        startMinutes: modalData.startMinutes,
+        endMinutes: modalData.startMinutes + 60
+    } : undefined;
+
+    const nowLineTop = minutesToPx(nowMinutes);
+    const bodyMinHeight = PX_PER_HOUR * 24;
+
     useEffect(() => {
         const updateWidth = () => {
             if (timetableBodyRef.current) {
@@ -70,8 +95,6 @@ function TimeTable({
         
         return () => window.removeEventListener('resize', updateWidth);
     }, []);
-
-    const dayWidth = bodyWidth / 5;
 
     useEffect(() => {
         function update() {
@@ -112,8 +135,14 @@ function TimeTable({
     }, [])
 
     useEffect(() => {
-        setWeekDays(getWeekDays(weekOffset));
-    }, [weekOffset])
+        const newWeekDays = getWeekDays(selectedDate);
+        setWeekDays(newWeekDays);
+
+    }, [weekOffset, selectedDate])
+
+    useEffect(() => {
+        setWeekOffset(externalWeekOffset);
+    }, [externalWeekOffset])
 
     const handleDragStart = (taskId: string, taskTitle: string) => {
         const task = tasks.find(t => t.id === taskId);
@@ -218,38 +247,11 @@ function TimeTable({
         setEditingTask(null);
     }
 
-    const handlePrevWeek = () => {
-        setWeekOffset(prev => prev - 1);
-    }
-
-    const handleNextWeek = () => {
-        setWeekOffset(prev => prev + 1);
-    }
-
-    const weekDateKeys = weekDays.map(day => getDateKey(day));
-
-    const scheduledTasks = tasks.filter(task => {
-        if (!task.scheduled) return false;
-        if (task.id === draggedTask?.id) return false;
-        return weekDateKeys.includes(task.scheduled.date);
-    });
-
-    const scheduled = modalData ? {
-        date: modalData.date,
-        startMinutes: modalData.startMinutes,
-        endMinutes: modalData.startMinutes + 60
-    } : undefined;
-
-    const nowLineTop = minutesToPx(nowMinutes);
-    const bodyMinHeight = PX_PER_HOUR * 24;
-
     return (
         <>
             <div className="timetable" ref={timetableRef}>
                 <div className="timetable__days-container">
                     <div></div>
-                    <img src={arrowIcon} onClick={handlePrevWeek} className="arrow arrow-left"></img>
-                    <img src={arrowIcon} onClick={handleNextWeek} className="arrow arrow-right"></img>
                     <div className="timetable__days">
                         {weekDays.map((day, index) => {
                             const isTodayDay = isToday(day);

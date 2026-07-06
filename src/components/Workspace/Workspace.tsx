@@ -10,6 +10,7 @@ function Workspace() {
     const draggedTaskRef = useRef<{ id: string, title: string, duration?: number } | null>(null);
     const [, forceUpdate] = useState({});
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [weekOffset, setWeekOffset] = useState(0);
 
     const handleDragStart = (taskId: string, taskTitle: string, duration?: number) => {
         draggedTaskRef.current = { id: taskId, title: taskTitle, duration };
@@ -46,6 +47,8 @@ function Workspace() {
                 forceUpdate({});
                 }}
                 onDragStart={handleDragStart}
+                weekOffset={weekOffset}
+                selectedDate={selectedDate}
             />
             {/* side pannel */}
             <div className="workspace__sidebar">
