@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import "./TimeTable.css";
 import { formatTime, getNowLineMinutes, roundToStep } from "../../utils/time";
-import { formatDate, getFiveWeekDays } from "../../utils/date";
-import type { TaskModel } from "../../models/task";
+import { getWeekDays } from "../../utils/date";
+import { getDateKey, type TaskModel } from "../../models/task";
 import CreateTaskModal from "../CreateTaskModal/CreateTaskModal";
 import ScheduledTask from "../ScheduledTask/ScheduledTask";
 import { clampMinutes, minutesToPx, PX_PER_HOUR, PX_PER_MINUTE, pxToMinutes } from "../../constants/time";
@@ -13,11 +13,12 @@ interface TimeTableProps {
     onCreateTask: (data: any) => void;
     onToggleTask: (taskId: string) => void;
     onDeleteTask: (taskId: string) => void;
-    onUpdateTaskSchedule: (taskId: string, schedule: { dayIndex: number, startMinutes: number; endMinutes: number }) => void;
+    onUpdateTaskSchedule: (taskId: string, schedule: { date: string, startMinutes: number; endMinutes: number }) => void;
     onUpdateTaskDetails: (taskId: string, title: string) => void;
     draggedTask: { id: string, title: string, duration?: number } | null;
     onClearDraggedTask: () => void;
     onDragStart?: (taskId: string, taskTitle: string, duration: number) => void;
+    selectedDate: Date | null;
 }
 
 function TimeTable({
@@ -29,24 +30,55 @@ function TimeTable({
     onUpdateTaskDetails,
     draggedTask,
     onClearDraggedTask,
-    onDragStart
+    onDragStart,
+    selectedDate
 }: TimeTableProps) {
-    const today = new Date();
     const [nowMinutes, setNowMinutes] = useState(() => getNowLineMinutes());
     const timetableRef = useRef<HTMLDivElement>(null);
     const nowLineRef = useRef<HTMLDivElement>(null);
     const timetableBodyRef = useRef<HTMLDivElement>(null);
     const [bodyWidth, setBodyWidth] = useState(0);
     const [editingTask, setEditingTask] = useState<TaskModel | null>(null);
+    const [weekDays, setWeekDays] = useState<Date[]>(() => {
+        const center = selectedDate || new Date();
+        return getWeekDays(center);
+    });
 
     const intervalRef = useRef<number | null>(null);
 
     const [modalData, setModalData] =  useState<null | {
         dayIndex: number;
+        date: string;
         startMinutes: number;
     }>(null);
 
     const [dragOverDay, setDragOverDay] = useState<number | null>(null);
+
+    const isToday = (date: Date): boolean => {
+        const today = new Date();
+        return date.getDate() === today.getDate()
+            && date.getMonth() === today.getMonth()
+            && date.getFullYear() === today.getFullYear()
+    }
+
+    const dayWidth = bodyWidth / 5;
+
+    const weekDateKeys = weekDays.map(day => getDateKey(day));
+
+    const scheduledTasks = tasks.filter(task => {
+        if (!task.scheduled) return false;
+        if (task.id === draggedTask?.id) return false;
+        return weekDateKeys.includes(task.scheduled.date);
+    });
+
+    const scheduled = modalData ? {
+        date: modalData.date,
+        startMinutes: modalData.startMinutes,
+        endMinutes: modalData.startMinutes + 60
+    } : undefined;
+
+    const nowLineTop = minutesToPx(nowMinutes);
+    const bodyMinHeight = PX_PER_HOUR * 24;
 
     useEffect(() => {
         const updateWidth = () => {
@@ -60,8 +92,6 @@ function TimeTable({
         
         return () => window.removeEventListener('resize', updateWidth);
     }, []);
-
-    const dayWidth = bodyWidth / 5;
 
     useEffect(() => {
         function update() {
@@ -101,6 +131,12 @@ function TimeTable({
 
     }, [])
 
+    useEffect(() => {
+        const newWeekDays = getWeekDays(selectedDate);
+        setWeekDays(newWeekDays);
+
+    }, [selectedDate])
+
     const handleDragStart = (taskId: string, taskTitle: string) => {
         const task = tasks.find(t => t.id === taskId);
         const duration = task?.scheduled
@@ -124,8 +160,12 @@ function TimeTable({
         const dayWidth = rect.width / 5;
         const dayIndex = Math.floor(x / dayWidth);
 
+        const selectedDate = weekDays[dayIndex];
+        const dateKey = getDateKey(selectedDate);
+
         setModalData({
             dayIndex,
+            date: dateKey,
             startMinutes: roundToStep(clampMinutes(minutes)),
         });
     }
@@ -161,7 +201,9 @@ function TimeTable({
         const x = e.clientX - rect.left;
         const dayWidth = rect.width / 5;
         const dayIndex = Math.floor(x / dayWidth);
-        const validDayIndex = Math.min(Math.max(dayIndex, 0), 4);
+
+        const selectedDate = weekDays[dayIndex];
+        const dateKey = getDateKey(selectedDate);
 
         const clampedMinutes = clampMinutes(minutes);
         const startMinutes = roundToStep(clampedMinutes);
@@ -170,7 +212,7 @@ function TimeTable({
         const endMinutes = startMinutes + duration;
 
         onUpdateTaskSchedule(draggedTask.id, {
-            dayIndex,
+            date: dateKey,
             startMinutes,
             endMinutes
         });
@@ -186,7 +228,7 @@ function TimeTable({
     const handleSaveTask = (taskId: string, data: {
         title: string,
         scheduled?: {
-            dayIndex: number;
+            date: string;
             startMinutes: number;
             endMinutes: number;
         }
@@ -198,34 +240,35 @@ function TimeTable({
         setEditingTask(null);
     }
 
-    const scheduledTasks = tasks.filter(task => task.scheduled && task.id !== draggedTask?.id);
-
-    const scheduled = {
-        dayIndex: modalData?.dayIndex!,
-        startMinutes: modalData?.startMinutes!,
-        endMinutes: modalData?.startMinutes! + 60
-    }
-
-    const nowLineTop = minutesToPx(nowMinutes);
-    const bodyMinHeight = PX_PER_HOUR * 24;
-
     return (
         <>
             <div className="timetable" ref={timetableRef}>
                 <div className="timetable__days-container">
                     <div></div>
                     <div className="timetable__days">
-                        {getFiveWeekDays(today).map((day, index) => (
-                            <p 
-                                key={day.toDateString()} 
-                                className={day.getDate() === today.getDate() ? 'timetable__day--today' : ''}
-                                style={{
-                                    backgroundColor: dragOverDay === index ? 'rgba(255,255,255,0.1)' : 'transparent'
-                                }}
-                            >
-                                {formatDate(day)}
-                            </p>
-                        ))}
+                        {weekDays.map((day, index) => {
+                            const isTodayDay = isToday(day);
+                            const weekday = day.toLocaleDateString('en-US', { weekday: 'long' });
+                            const dayNumber = day.getDate();
+                            const isSelectedDay = (JSON.stringify(day) === JSON.stringify(selectedDate));
+                            
+                            return (
+                                <div 
+                                    key={day.toDateString()} 
+                                    className="timetable__day-wrapper"
+                                    style={{
+                                        backgroundColor: dragOverDay === index ? 'rgba(255,255,255,0.1)' : 'transparent'
+                                    }}
+                                >
+                                    <div className="timetable__day">
+                                        <span className='timetable__day-name'>{weekday}</span>
+                                        <span className={isSelectedDay ? 'timetable__day-number--focused' : isTodayDay ? 'timetable__day-number--today' : 'timetable__day-number'}>
+                                            {dayNumber}
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
                 <div 
@@ -259,10 +302,20 @@ function TimeTable({
                             }
                         >
                             {scheduledTasks.map(task => {
+                                const taskDate = new Date(task.scheduled!.date);
+                                const dayIndex = weekDays.findIndex(day => {
+                                    return day.getDate() === taskDate.getDate() &&
+                                    day.getMonth() === taskDate.getMonth() &&
+                                    day.getFullYear() === taskDate.getFullYear()
+                                })
+
+                                if (dayIndex === -1) return null;
+
                                 return (
                                     <ScheduledTask 
                                         key={task.id} 
                                         task={task} 
+                                        dayIndex={dayIndex}
                                         onToggleComplete={() => onToggleTask(task.id)} 
                                         onDelete={() => onDeleteTask(task.id)}
                                         onEdit={handleEditTask}

@@ -6,6 +6,7 @@ import './ScheduledTask.css';
 
 interface ScheduledTaskProps {
     task: TaskModel;
+    dayIndex: number;
     onToggleComplete: () => void;
     onDelete: () => void;
     onEdit: (task: TaskModel) => void;
@@ -15,6 +16,7 @@ interface ScheduledTaskProps {
 
 function ScheduledTask({ 
     task, 
+    dayIndex,
     onToggleComplete, 
     onDelete,
     onEdit,
@@ -23,7 +25,7 @@ function ScheduledTask({
 }: ScheduledTaskProps) {
     if (!task.scheduled) return null;
 
-    const { dayIndex, startMinutes, endMinutes } = task.scheduled;
+    const { startMinutes, endMinutes } = task.scheduled;
 
     const top = minutesToPx(startMinutes);
     const height = minutesToPx(endMinutes - startMinutes);
@@ -81,6 +83,7 @@ function ScheduledTask({
             onDragEnd={handleDragEnd}
             onClick={handleTaskClick}
             onContextMenu={handleContextMenu}
+            title={task.title}
             style={{
                 position: 'absolute',
                 top: `${top}px`,
@@ -91,8 +94,7 @@ function ScheduledTask({
             }}
             >
             <div className="scheduled-task__content">
-                <small 
-                    title={task.title}
+                <small
                     className="scheduled-task__title" 
                     style={{
                         color: `rgba(var(--task-color-${task.colorId}), ${task.completed ? 0.5 : 1})`

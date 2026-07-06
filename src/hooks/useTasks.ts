@@ -32,7 +32,7 @@ export function useTasks() {
     function createTask(data: {
         title: string,
         scheduled?: {
-            dayIndex: number,
+            date: string,
             startMinutes: number,
             endMinutes: number,
         }
@@ -60,10 +60,10 @@ export function useTasks() {
     }
 
     function updateTaskSchedule(taskId: string, schedule: {
-        dayIndex: number;
+        date: string;
         startMinutes: number;
         endMinutes: number;
-    }) {
+    } | undefined) {
         setTasks((prev) => prev.map(task => 
             task.id === taskId
                 ? { ...task, scheduled: schedule}
