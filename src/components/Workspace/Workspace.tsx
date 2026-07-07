@@ -6,7 +6,7 @@ import './Workspace.css';
 import Calendar from "../Calendar/Calendar";
 
 function Workspace() {
-    const { tasks, createTask, toggleTask, deleteTask, updateTaskSchedule, updateTaskDetails } = useTasks();
+    const { tasks, createTask, toggleTask, deleteTask, updateTaskSchedule, updateTaskDetails, unscheduleTask } = useTasks();
     const draggedTaskRef = useRef<{ id: string, title: string, duration?: number } | null>(null);
     const [, forceUpdate] = useState({});
     const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -22,7 +22,7 @@ function Workspace() {
     };
 
     const handleLibraryDrop = (taskId: string) => {
-        updateTaskSchedule(taskId, undefined as any)
+        unscheduleTask(taskId);
         draggedTaskRef.current = null;
         forceUpdate({})
     }

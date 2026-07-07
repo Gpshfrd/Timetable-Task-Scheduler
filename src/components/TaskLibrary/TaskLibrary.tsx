@@ -92,8 +92,11 @@ function TaskLibrary({
             console.error(`Could not set dataTransfer`)
         }
 
+        const task = tasks.find(t => taskId === t.id);
+        const duration = task?._duration || 60;
+
         setTimeout(() => {
-            onDragStart(taskId, taskTitle, 60);
+            onDragStart(taskId, taskTitle, duration);
         }, 0)
     }
 

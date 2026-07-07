@@ -78,5 +78,20 @@ export function useTasks() {
                 : task
         ));
     }
-    return { tasks, createTask, toggleTask, deleteTask, updateTaskSchedule, updateTaskDetails };
+
+    function unscheduleTask(taskId: string) {
+        setTasks(prev => prev.map(task => {
+            if (task.id === taskId) {
+                const duration = task.scheduled ? task.scheduled.endMinutes - task.scheduled.startMinutes : 60;
+                return {
+                    ...task,
+                    scheduled: undefined,
+                    _duration: duration
+                }
+            }
+            return task;
+        }))
+    }
+
+    return { tasks, createTask, toggleTask, deleteTask, updateTaskSchedule, updateTaskDetails, unscheduleTask };
 }

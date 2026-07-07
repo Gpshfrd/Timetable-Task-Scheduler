@@ -3,12 +3,12 @@ export interface TaskModel {
   title: string;
   completed: boolean;
   colorId: number;
-
   scheduled?: {
     date: string; // 'yyyy-mm-dd'
     startMinutes: number;
     endMinutes: number;
   }
+  _duration?: number;
 }
 
 export function isScheduled(task: TaskModel): task is TaskModel & {scheduled: NonNullable<TaskModel['scheduled']>} {
