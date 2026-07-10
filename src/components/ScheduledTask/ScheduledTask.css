@@ -8,6 +8,7 @@
     border-radius: 5px;
     border-left-width: 5px;
     border-left-style: solid;
+    box-sizing: border-box;
 }
 
 .scheduled-task:hover {

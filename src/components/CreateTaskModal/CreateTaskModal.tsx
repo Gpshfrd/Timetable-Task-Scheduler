@@ -119,7 +119,7 @@ function CreateTaskModal({
         }
     }, [])
 
-    const showTimeStatus = hasUserInteractedWithTime;
+    const showTimeStatus = scheduled && hasUserInteractedWithTime;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -153,28 +153,30 @@ function CreateTaskModal({
                                 </div>
                             </div>
                         )}
-
-                        <div className="modal__time-status">
-                            {showTimeStatus && hasConflicts ? (
-                                <div className="modal__time-status--conflict">
-                                    This time conflicts with {conflictingTasks.length} task(s)
-                                    {availableSlot && (
-                                        <span className="modal__suggestion">
-                                            Suggested: {formatTime(availableSlot.startMinutes)} - {formatTime(availableSlot.endMinutes)}
-                                        </span>
-                                    )}
-                                    {!availableSlot && (
-                                        <span className="modal__suggestion">
-                                            No available time on this day
-                                        </span>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="modal__time-status--free">
-                                    Time is available
-                                </div>
-                            )}
-                        </div>
+                        
+                        {scheduled && (
+                            <div className="modal__time-status">
+                                {showTimeStatus ? (
+                                    <div className="modal__time-status--conflict">
+                                        This time conflicts with {conflictingTasks.length} task(s)
+                                        {availableSlot && (
+                                            <span className="modal__suggestion">
+                                                Suggested: {formatTime(availableSlot.startMinutes)} - {formatTime(availableSlot.endMinutes)}
+                                            </span>
+                                        )}
+                                        {!availableSlot && (
+                                            <span className="modal__suggestion">
+                                                No available time on this day
+                                            </span>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="modal__time-status--free">
+                                        Time is available
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="modal-actions">

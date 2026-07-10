@@ -215,9 +215,9 @@ function TaskLibrary({
             </div>
             {isModalOpen && (
                 <CreateTaskModal
-                onClose={onCloseModal}
-                onCreate={handleCreateTask}
-            ></CreateTaskModal>
+                    onClose={onCloseModal}
+                    onCreate={handleCreateTask}
+                ></CreateTaskModal>
             )} 
         </>
     )

@@ -43,7 +43,7 @@ function ScheduledTask({
 
     const handleDeleteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (confirm('Delete this task?')) {
+        if (confirm(`Do you want to delete task: ${task.title}?`)) {
             onDelete();
         }
     }
@@ -87,9 +87,9 @@ function ScheduledTask({
             style={{
                 position: 'absolute',
                 top: `${top}px`,
-                height: `${height - 9}px`,
+                height: `${height - 1}px`,
                 left: `calc(100% / 5 * ${dayIndex})`,
-                width: `calc(100% / 5 - 32px)`,
+                width: `calc(100% / 5 - 16px)`,
                 borderColor: `rgba(var(--task-color-${task.colorId}), ${task.completed ? 0.5 : 1})`
             }}
             >
