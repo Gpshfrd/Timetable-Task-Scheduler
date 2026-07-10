@@ -42,6 +42,8 @@ function EditTaskModal({
         excludeTaskId: task.id,
     });
 
+    const isTitleEmpty = title.trim().length === 0;
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
@@ -145,12 +147,12 @@ function EditTaskModal({
                                 </div>
                             )}
                         </div>
-                    )}
+                    )}  
                 </div>
 
                 <div className="modal-actions">
                     <button type="button" onClick={onClose}>Cancel</button>
-                    <button type="submit" onClick={handleSubmit} className={hasConflicts ? 'modal-actions__disabled' : ''}>Save</button>
+                    <button type="submit" onClick={handleSubmit} disabled={isTitleEmpty || hasConflicts} className={(isTitleEmpty || hasConflicts) ? 'modal-actions__disabled' : ''}>Save</button>
                 </div>
             </form>
         </div>

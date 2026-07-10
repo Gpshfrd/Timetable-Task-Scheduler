@@ -56,6 +56,8 @@ function CreateTaskModal({
         excludeTaskId: undefined,
     });
 
+    const isTitleEmpty = title.trim().length === 0;
+
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (!title.trim()) return;
@@ -181,7 +183,7 @@ function CreateTaskModal({
 
                     <div className="modal-actions">
                         <button type="button" onClick={onClose}>Cancel</button>
-                        <button type="submit" onClick={handleSubmit} disabled={hasConflicts} className={hasConflicts ? 'modal-actions__disabled' : ''}>Create</button>
+                        <button type="submit" onClick={handleSubmit} disabled={isTitleEmpty || hasConflicts} className={(isTitleEmpty || hasConflicts) ? 'modal-actions__disabled' : ''}>Create</button>
                     </div>
                 </form>
             </div>
