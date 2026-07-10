@@ -13,7 +13,7 @@ interface TimeTableProps {
     onCreateTask: (data: any) => void;
     onToggleTask: (taskId: string) => void;
     onDeleteTask: (taskId: string) => void;
-    onUpdateTaskSchedule: (taskId: string, schedule: { date: string, startMinutes: number; endMinutes: number }) => void;
+    onUpdateTaskSchedule: (taskId: string, schedule: { date: string, startMinutes: number; endMinutes: number }) => boolean;
     onUpdateTaskDetails: (taskId: string, title: string) => void;
     draggedTask: { id: string, title: string, duration?: number } | null;
     onClearDraggedTask: () => void;
@@ -194,6 +194,9 @@ function TimeTable({
             return;
         }
 
+        const originalTask = tasks.find(task => task.id === draggedTask.id);
+        const originalSchedule = originalTask?.scheduled;
+
         const rect = e.currentTarget.getBoundingClientRect();
         const y = e.clientY - rect.top;
         const minutes = pxToMinutes(y);
@@ -211,11 +214,17 @@ function TimeTable({
         const duration = draggedTask.duration || PX_PER_HOUR;
         const endMinutes = startMinutes + duration;
 
-        onUpdateTaskSchedule(draggedTask.id, {
+        const success = onUpdateTaskSchedule(draggedTask.id, {
             date: dateKey,
             startMinutes,
             endMinutes
         });
+
+        if (!success) {
+            if (originalSchedule) {
+                onUpdateTaskSchedule(draggedTask.id, originalSchedule);
+            }
+        }
 
         onClearDraggedTask();
         setDragOverDay(null);
@@ -250,7 +259,10 @@ function TimeTable({
                             const isTodayDay = isToday(day);
                             const weekday = day.toLocaleDateString('en-US', { weekday: 'long' });
                             const dayNumber = day.getDate();
-                            const isSelectedDay = (JSON.stringify(day) === JSON.stringify(selectedDate));
+                            const isSelectedDay = selectedDate && 
+                                day.getDate() === selectedDate.getDate() &&
+                                day.getMonth() === selectedDate.getMonth() &&
+                                day.getFullYear() === selectedDate.getFullYear();
                             
                             return (
                                 <div 
@@ -353,12 +365,14 @@ function TimeTable({
                             scheduled={scheduled}
                             onClose={() => setModalData(null)}
                             onCreate={onCreateTask}
+                            tasks={tasks}
                         ></CreateTaskModal>
                     )}
 
                     {editingTask && editingTask.scheduled && (
                         <EditTaskModal
                             task={editingTask as any}
+                            tasks={tasks}
                             onClose={() => setEditingTask(null)}
                             onSave={handleSaveTask}
                         />

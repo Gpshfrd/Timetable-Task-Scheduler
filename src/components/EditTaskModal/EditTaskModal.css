@@ -64,3 +64,33 @@
   justify-content: center;
   align-items: center;
 }
+
+.modal__time-status {
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+.modal__time-status--free {
+  color: #22c55e;
+}
+
+.modal__time-status--conflict {
+  color: #ef4444;
+}
+
+.modal__suggestion {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.modal-actions__disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

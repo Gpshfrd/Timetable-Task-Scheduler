@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import "./EditTaskModal.css";
-import { minutesToTimeString, timeStringToMinutes } from "../../utils/time";
+import { formatTime, minutesToTimeString, timeStringToMinutes } from "../../utils/time";
 import type { TaskModel } from "../../models/task";
+import { useTaskConflicts } from "../../hooks/useTasksConflicts";
 
 interface Props {
     task: TaskModel;
+    tasks: TaskModel[];
     onClose: () => void;
     onSave: (taskId: string, data: {
         title: string,
@@ -18,12 +20,27 @@ interface Props {
 
 function EditTaskModal({
     task,
+    tasks,
     onClose,
     onSave,
 }: Props) {
+    if (!task.scheduled) return null;
+
     const [title, setTitle] = useState(task.title);
     const [start, setStart] = useState(task.scheduled?.startMinutes ?? 9 * 60);
     const [end, setEnd] = useState(task.scheduled?.endMinutes ?? 10 * 60);
+
+    const [hasUserInteractedWithTime, setHasUserInteractedWithTime] = useState(false);
+
+    const date = task.scheduled.date;
+
+    const { hasConflicts, conflictingTasks, availableSlot } = useTaskConflicts({
+        tasks,
+        date,
+        startMinutes: start,
+        endMinutes: end,
+        excludeTaskId: task.id,
+    });
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -39,6 +56,8 @@ function EditTaskModal({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!title.trim) return;
+
+        if (hasConflicts) return;
 
         if (task.scheduled) {
             onSave(task.id, {
@@ -56,6 +75,18 @@ function EditTaskModal({
         }
         onClose();
     };
+
+    const handleStartChange = (value: string) => {
+        setHasUserInteractedWithTime(true);
+        setStart(timeStringToMinutes(value));
+    };
+
+    const handleEndChange = (value: string) => {
+        setHasUserInteractedWithTime(true);
+        setEnd(timeStringToMinutes(value));
+    };
+
+    const showTimeStatus = hasUserInteractedWithTime;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -79,7 +110,7 @@ function EditTaskModal({
                                 className="time-input" 
                                 type="time" 
                                 value={minutesToTimeString(start)} 
-                                onChange={(e) => setStart(timeStringToMinutes(e.target.value))}
+                                onChange={(e) => handleStartChange(e.target.value)}
                             />
                         </div>
                         <div className="time-input-container">
@@ -87,15 +118,39 @@ function EditTaskModal({
                             <input 
                                 type="time" 
                                 value={minutesToTimeString(end)} 
-                                onChange={(e) => setEnd(timeStringToMinutes(e.target.value))}
+                                onChange={(e) => handleEndChange(e.target.value)}
                             />
                         </div>
                     </div>
+
+                    {showTimeStatus && (
+                        <div className="modal__time-status">
+                            {hasConflicts ? (
+                                <div className="modal__time-status--conflict">
+                                    This time conflicts with {conflictingTasks.length} task(s)
+                                    {availableSlot && (
+                                        <span className="modal__suggestion">
+                                            Suggested: {formatTime(availableSlot.startMinutes)} - {formatTime(availableSlot.endMinutes)}
+                                        </span>
+                                    )}
+                                    {!availableSlot && (
+                                        <span className="modal__suggestion">
+                                            No available time on this day
+                                        </span>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="modal__time-status--free">
+                                    Time is available
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="modal-actions">
                     <button type="button" onClick={onClose}>Cancel</button>
-                    <button type="submit" onClick={handleSubmit}>Save</button>
+                    <button type="submit" onClick={handleSubmit} className={hasConflicts ? 'modal-actions__disabled' : ''}>Save</button>
                 </div>
             </form>
         </div>

@@ -63,12 +63,30 @@ export function useTasks() {
         date: string;
         startMinutes: number;
         endMinutes: number;
-    } | undefined) {
+    } | undefined): boolean {
+        if (schedule) {
+            const conflicts = tasks.filter(task => {
+                if (!task.scheduled) return false;
+                if (task.id === taskId) return false;
+                if (task.scheduled.date !== schedule.date) return false;
+                
+                return (
+                    schedule.startMinutes < task.scheduled.endMinutes &&
+                    task.scheduled.startMinutes < schedule.endMinutes
+                );
+            });
+
+            if (conflicts.length > 0) {
+                return false;
+            }
+        }
+
         setTasks((prev) => prev.map(task => 
             task.id === taskId
                 ? { ...task, scheduled: schedule}
                 : task
         ))
+        return true;
     }
 
     function updateTaskDetails(taskId: string, title: string) {
