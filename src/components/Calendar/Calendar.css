@@ -1,125 +1,125 @@
 .calendar__overlay {
-    width: 100%;
+  width: 100%;
 }
 
 .calendar {
-    background: var(--bg-color-accent);
-    border-radius: var(--border-radius-timetable);
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  background: var(--bg-color-accent);
+  border-radius: var(--border-radius-timetable);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .calendar__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .calendar__title {
-    color: var(--text-primary);
-    font-weight: 600;
-    font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .calendar__nav-btn {
-    background-color: var(--bg-color-accent);
-    border: none;
-    color: var(--text-primary);
-    width: 16px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  background-color: var(--bg-color-accent);
+  border: none;
+  color: var(--text-primary);
+  width: 16px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .calendar__nav-btn:hover {
-    border: none;
-    background-color: var(--bg-accent-lines);
+  border: none;
+  background-color: var(--bg-accent-lines);
 }
 
 .calendar__weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    margin-bottom: 4px;
-    flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+  flex-shrink: 0;
 }
 
 .calendar__weekday {
-    color: var(--text-secondary);
-    font-size: 8px;
-    text-align: center;
-    font-weight: 500;
-    text-transform: uppercase;
+  color: var(--text-secondary);
+  font-size: 8px;
+  text-align: center;
+  font-weight: 500;
+  text-transform: uppercase;
 }
 
 .calendar__grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
 }
 
 .calendar__day {
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    padding: 4px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 12px;
-    text-align: center;
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  padding: 4px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  text-align: center;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .calendar__day:hover {
-    background: var(--bg-accent-lines);
+  background: var(--bg-accent-lines);
 }
 
 .calendar__day--today {
-    color: #ff4444;
-    font-weight: 600;
+  color: var(--accent-date);
+  font-weight: 600;
 }
 
 .calendar__day--selected {
-    background: #ff4444;
-    color: var(--text-primary);
+  background: var(--accent-date);
+  color: var(--text-primary);
 }
 
 .calendar__day--selected:hover {
-    background: #ff4444;
-    color: var(--text-primary);
+  background: var(--accent-date);
+  color: var(--text-primary);
 }
 
 .calendar__day--empty {
-    visibility: hidden;
+  visibility: hidden;
 }
 
 .calendar__footer {
-    margin-top: 8px;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: center;
+  margin-top: 8px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
 }
 
 .calendar__today-btn {
-    background: var(--bg-accent-lines);
-    border: none;
-    color: var(--text-primary);
-    padding: 4px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 11px;
-    transition: background-color 0.2s;
+  background: var(--bg-accent-lines);
+  border: none;
+  color: var(--text-primary);
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: background-color 0.2s;
 }
 
 .calendar__today-btn:hover {
-    background: var(--bg-accent-lines);
-    border: none;
-    outline: var(--text-tertiary) 1px solid;
+  background: var(--bg-accent-lines);
+  border: none;
+  outline: var(--text-tertiary) 1px solid;
 }

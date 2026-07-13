@@ -1,0 +1,105 @@
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.task-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.task-form__field {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-form__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.task-form__input {
+  background: var(--bg-color);
+  border: 1px solid var(--text-tertiary);
+  color: var(--text-primary);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.task-form__input:focus {
+  outline: none;
+  border-color: var(--text-primary);
+}
+
+.task-form__time-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.task-form__time-input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-form__time-input label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.task-form__time-input input[type="time"] {
+  background: var(--bg-color);
+  border: 1px solid var(--text-tertiary);
+  color: var(--text-primary);
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.task-form__time-input input[type="time"]:focus {
+  outline: none;
+  border-color: var(--bg-color);
+}
+
+.task-form__status {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.task-form__status--conflict {
+  color: var(--text-status-error);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-form__status--free {
+  color: var(--text-status-ok);
+}
+
+.task-form__suggestion {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.task-form__actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.task-form__disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
