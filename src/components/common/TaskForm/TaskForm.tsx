@@ -103,11 +103,13 @@ function TaskForm({
   };
 
   const handleStartChange = (value: string) => {
+    if (!/^\d{2}:\d{2}$/.test(value)) return;
     setHasUserInteracted(true);
     setStart(timeStringToMinutes(value));
   };
 
   const handleEndChange = (value: string) => {
+    if (!/^\d{2}:\d{2}$/.test(value)) return;
     setHasUserInteracted(true);
     setEnd(timeStringToMinutes(value));
   };
