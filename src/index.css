@@ -5,7 +5,11 @@
   --text-primary: #fff;
   --text-secondary: rgba(255, 255, 255, 0.5);
   --text-tertiary: rgba(255, 255, 255, 0.3);
-  --bg-accent-lines:rgba(255, 255, 255, 0.1);
+  --bg-accent-lines: rgba(255, 255, 255, 0.1);
+  --modal-overlay: rgba(0, 0, 0, 0.6);
+  --text-status-error: #ef4444;
+  --accent-date: #ef4444;
+  --text-status-ok: #22c55e;
 
   --task-done-alpha: 0.75;
   --task-color-1: 160, 204, 222;
@@ -32,7 +36,7 @@
 
   --font-panel-title: 600 16px var(--font-family);
   --font-panel-group: 500 14px var(--font-family);
-  --font-panel-task: 700 14px var(--font-family); 
+  --font-panel-task: 700 14px var(--font-family);
 
   /*radiuces*/
   --border-radius-timetable: 15px;
@@ -112,9 +116,15 @@ button {
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (prefers-color-scheme: light) {
