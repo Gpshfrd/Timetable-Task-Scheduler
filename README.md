@@ -49,17 +49,20 @@ src/
 ## Installation and launch
 
 1. **Clone the repository**
+
 ```bash
 git clone <url>
 cd timetable
 ```
 
 2. **Install dependencies**
+
 ```bash
 npm install
 ```
 
 3. **Run the progect in dev mode**
+
 ```bash
 npm run dev
 ```
@@ -67,7 +70,9 @@ npm run dev
 4. **Open `http://localhost:5173` or or another port specified in the terminal**
 
 ## Using
+
 ### Adding a task
+
 Click "+" in the task library (sidebar) → the modal opens.
 
 Enter a name and, if necessary, specify the time (if you create it from a schedule, the start will be substituted automatically based on the clicked location).
@@ -75,11 +80,13 @@ Enter a name and, if necessary, specify the time (if you create it from a schedu
 Click `Create`, and the task will appear in the library or immediately on the schedule.
 
 ### Task planning
+
 Drag a task from the library to the appropriate day and time in the schedule.
 
 Alternatively, click on an empty space in the schedule to open the creation modal with a preset time.
 
 ### Editing
+
 Right-click on the task in the **schedule** → the edit modal opens.
 
 Right-click on the task in the **library** → edit the name.
@@ -87,9 +94,11 @@ Right-click on the task in the **library** → edit the name.
 Change the name or time, and click Save or press Enter.
 
 ### Completing a task
+
 Left–clicking on a task in the schedule will switch the completed state.
 
 ### Removal
+
 **From the schedule**: click on the cross in the upper-right corner of the task (confirmation) or drag the task to the trash button.
 
 **From the library**: Drag the task to the trash button.

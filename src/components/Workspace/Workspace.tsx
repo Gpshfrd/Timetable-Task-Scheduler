@@ -19,9 +19,7 @@ function Workspace() {
   const [, forceUpdate] = useState({});
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-  const handleDragStart = (
-    taskId: string,
-  ) => {
+  const handleDragStart = (taskId: string) => {
     draggedTaskIdRef.current = taskId;
     forceUpdate({});
   };

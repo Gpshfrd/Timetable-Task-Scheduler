@@ -4,7 +4,6 @@ import CreateTaskModal from "../CreateTaskModal/CreateTaskModal";
 import type { TaskModel } from "../../models/task";
 import addIcon from "../../assets/add.svg";
 import deleteIcon from "../../assets/delete.svg";
-import { useTasks } from "../../hooks/useTasks";
 
 interface TaskLibraryProps {
   tasks: TaskModel[];

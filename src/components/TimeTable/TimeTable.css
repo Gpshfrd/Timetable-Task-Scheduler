@@ -175,3 +175,13 @@
   left: calc(var(--day-width) * var(--day-index, 0));
   width: calc(var(--day-width) - 8px);
 }
+
+.drop-preview {
+    box-sizing: border-box;
+    background-color: var(--bg-accent-lines);
+    border: 2px dashed var(--text-secondary);
+    border-radius: 4px;
+    pointer-events: "none";
+    z-index: 5;
+    transition: all 0.1s ease;
+}

@@ -10,7 +10,7 @@ interface ScheduledTaskProps {
   onToggleComplete: () => void;
   onDelete: () => void;
   onEdit: (task: TaskModel) => void;
-  onDragStart?: (taskId: string, taskTitle: string, duration: number) => void;
+  onDragStart?: (taskId: string, offsetY: number) => void;
   onDragEnd?: () => void;
 }
 
@@ -53,7 +53,8 @@ function ScheduledTask({
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", task.id);
 
-    const duration = task.scheduled!.endMinutes - task.scheduled!.startMinutes;
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    const offsetY = e.clientY - rect.top;
 
     try {
       e.dataTransfer.setData("text/plain", task.id);
@@ -63,7 +64,7 @@ function ScheduledTask({
 
     if (onDragStart) {
       setTimeout(() => {
-        onDragStart(task.id, task.title, duration);
+        onDragStart(task.id, offsetY);
       }, 0);
     }
   };

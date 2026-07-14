@@ -26,7 +26,7 @@ interface TimeTableProps {
   onUpdateTaskDetails: (taskId: string, title: string) => void;
   draggedTaskId: string | null;
   onClearDraggedTask: () => void;
-  onDragStart?: (taskId: string) => void;
+  onDragStart?: (taskId: string, offsetY: number) => void;
   selectedDate: Date | null;
 }
 
@@ -52,6 +52,7 @@ function TimeTable({
     const center = selectedDate || new Date();
     return getWeekDays(center);
   });
+  const [dragOffset, setDragOffset] = useState<number>(0);
 
   const intervalRef = useRef<number | null>(null);
 
@@ -84,7 +85,15 @@ function TimeTable({
   const nowLineTop = minutesToPx(nowMinutes);
   const bodyMinHeight = PX_PER_HOUR * 24;
 
-  const editingTask = editingTaskId ? tasks.find(t => t.id === editingTaskId) : null;
+  const editingTask = editingTaskId
+    ? tasks.find((t) => t.id === editingTaskId)
+    : null;
+
+  const [dropPreview, setDropPreview] = useState<{
+    dayIndex: number;
+    startMinutes: number;
+    duration: number;
+  } | null>(null);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -141,9 +150,12 @@ function TimeTable({
     setWeekDays(newWeekDays);
   }, [selectedDate]);
 
-  const handleDragStart = (taskId: string) => {
+  const handleDragStart = (taskId: string, offsetY: number) => {
     if (onDragStart) {
-      onDragStart(taskId);
+      onDragStart(taskId, offsetY);
+    }
+    if (offsetY !== undefined) {
+        setDragOffset(offsetY);
     }
   };
 
@@ -176,44 +188,51 @@ function TimeTable({
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top - dragOffset;
     const dayWidth = rect.width / 5;
     const dayIndex = Math.floor(x / dayWidth);
     setDragOverDay(Math.min(Math.max(dayIndex, 0), 4));
+
+    const minutes = pxToMinutes(y);
+    const clampedMinutes = clampMinutes(minutes);
+    const startMinutes = roundToStep(clampedMinutes);
+
+    let duration = 60;
+    if (draggedTaskId) {
+      const task = tasks.find((t) => t.id === draggedTaskId);
+      if (task?.scheduled) {
+        duration = task.scheduled.endMinutes - task.scheduled.startMinutes;
+      }
+    }
+
+    setDropPreview({
+      dayIndex: Math.min(Math.max(dayIndex, 0), 4),
+      startMinutes,
+      duration,
+    });
   };
 
   const handleDragLeave = () => {
     setDragOverDay(null);
+    setDropPreview(null);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!draggedTaskId) {
+    if (!draggedTaskId || !dropPreview) {
+      setDropPreview(null);
       return;
     }
 
-    const task = tasks.find(t => t.id === draggedTaskId);
+    const task = tasks.find((t) => t.id === draggedTaskId);
     if (!task) return;
     const schedule = task.scheduled;
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const minutes = pxToMinutes(y);
-
-    const x = e.clientX - rect.left;
-    const dayWidth = rect.width / 5;
-    const dayIndex = Math.floor(x / dayWidth);
-
+    const { dayIndex, startMinutes, duration } = dropPreview;
     const selectedDate = weekDays[dayIndex];
     const dateKey = getDateKey(selectedDate);
-
-    const clampedMinutes = clampMinutes(minutes);
-    const startMinutes = roundToStep(clampedMinutes);
-
-    const duration = task.scheduled
-    ? task.scheduled.endMinutes - task.scheduled.startMinutes
-    : 60;
     const endMinutes = startMinutes + duration;
 
     const success = onUpdateTaskSchedule(draggedTaskId, {
@@ -230,6 +249,7 @@ function TimeTable({
 
     onClearDraggedTask();
     setDragOverDay(null);
+    setDropPreview(null);
   };
 
   const handleEditTask = (task: TaskModel) => {
@@ -359,28 +379,26 @@ function TimeTable({
                   />
                 );
               })}
-
-              {dragOverDay !== null && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: `${(dragOverDay / 5) * 100}%`,
-                    width: "20%",
-                    height: "100%",
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                    borderLeft: "none",
-                    pointerEvents: "none",
-                    zIndex: 10,
-                  }}
-                />
-              )}
               <div
                 className="now-line"
                 style={{ top: `${nowLineTop}px` }}
                 ref={nowLineRef}
                 data-time={formatTime(nowMinutes)}
               />
+
+              {dropPreview && (
+                <div
+                  className="drop-preview"
+                  style={{
+                    position: "absolute",
+                    top: `${minutesToPx(dropPreview.startMinutes)}px`,
+                    left: `${(dropPreview.dayIndex / 5) * 100}%`,
+                    width: `calc(20% - 16px)`,
+                    height: `${minutesToPx(dropPreview.duration) - 1}px`,
+                    
+                  }}
+                />
+              )}
             </div>
           </div>
           {modalData && (
