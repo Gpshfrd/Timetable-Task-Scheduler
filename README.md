@@ -89,7 +89,7 @@ Alternatively, click on an empty space in the schedule to open the creation moda
 
 Right-click on the task in the **schedule** → the edit modal opens.
 
-Right-click on the task in the **library** → edit the name.
+Double-click on the task in the **library** → edit the name.
 
 Change the name or time, and click Save or press Enter.
 
