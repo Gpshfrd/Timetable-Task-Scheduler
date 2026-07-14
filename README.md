@@ -1,73 +1,95 @@
-# React + TypeScript + Vite
+# Timetable Task Scheduler
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web application for scheduling tasks for the week with a visual schedule
 
-Currently, two official plugins are available:
+## Functionality
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Weekly Calendar** – Displays 5 days (Mon–Fri) with date selection.
+- **Creating and editing tasks** – modal windows with a form, time validation (end > start, minimum duration of 15 minutes).
+- **Dragging tasks** – from the library to the schedule and between time slots.
+- **Conflict checking** – automatic detection of intersections of tasks, offering a free slot.
+- **Completion of tasks** – marking completed (strikethrough, changing transparency).
+- **Deleting tasks** – from the schedule (right click → edit) or from the library (drag to the trash).
+- **The state is saved** in `localStorage`.
 
-## React Compiler
+## Used Technologies
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React** (functional components + hooks)
+- **TypeScript** – strong typing
+- **CSS** (without additional libraries)
+- **localStorage** – for storing tasks
+- **ESLint + Prettier** – code style
 
-## Expanding the ESLint configuration
+## 📂 Структура проекта (после рефакторинга)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```
+src/
+├── assets/ # icons, images
+├── components/
+│ ├── common/ # reusable components
+│ │ ├── Modal/ # universal modal window
+│ │ └── TaskForm/ # create/edit form for task
+│ ├── Calendar/ # mini calendar for date selection and navigation
+│ ├── Header/ # application header (currently not in use)
+│ ├── ScheduledTask/ # displaying a task in a schedule
+│ ├── TaskLibrary/ # library of unplanned tasks
+│ ├── TimeTable/ # the main schedule grid
+│ └── Workspace/ # main container with timetable and sidebar
+├── constants/ # constants (time)
+├── hooks/ # custom hooks
+│ ├── useTasks.ts # task management (CRUD + localStorage)
+│ └── useTaskConflicts.ts # сonflict detection and free slots functions
+├── models/ # data types (TaskModel)
+├── utils/ # date, time, formatting
+├── App.tsx # the root component
+├── main.tsx # entry point
+└── index.css # global styles and CSS-variables
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Installation and launch
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+1. **Clone the repository**
+```bash
+git clone <url>
+cd timetable
 ```
+
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Run the progect in dev mode**
+```bash
+npm run dev
+```
+
+4. **Open `http://localhost:5173` or or another port specified in the terminal**
+
+## Using
+### Adding a task
+Click "+" in the task library (sidebar) → the modal opens.
+
+Enter a name and, if necessary, specify the time (if you create it from a schedule, the start will be substituted automatically based on the clicked location).
+
+Click `Create`, and the task will appear in the library or immediately on the schedule.
+
+### Task planning
+Drag a task from the library to the appropriate day and time in the schedule.
+
+Alternatively, click on an empty space in the schedule to open the creation modal with a preset time.
+
+### Editing
+Right-click on the task in the **schedule** → the edit modal opens.
+
+Right-click on the task in the **library** → edit the name.
+
+Change the name or time, and click Save or press Enter.
+
+### Completing a task
+Left–clicking on a task in the schedule will switch the completed state.
+
+### Removal
+**From the schedule**: click on the cross in the upper-right corner of the task (confirmation) or drag the task to the trash button.
+
+**From the library**: Drag the task to the trash button.
