@@ -13,7 +13,6 @@ import {
   pxToMinutes,
 } from "../../constants/time";
 import EditTaskModal from "../EditTaskModal/EditTaskModal";
-import { useTasks } from "../../hooks/useTasks";
 
 interface TimeTableProps {
   tasks: TaskModel[];
@@ -25,9 +24,9 @@ interface TimeTableProps {
     schedule: { date: string; startMinutes: number; endMinutes: number },
   ) => boolean;
   onUpdateTaskDetails: (taskId: string, title: string) => void;
-  draggedTask: { id: string; title: string; duration?: number } | null;
+  draggedTaskId: string | null;
   onClearDraggedTask: () => void;
-  onDragStart?: (taskId: string, taskTitle: string, duration: number) => void;
+  onDragStart?: (taskId: string) => void;
   selectedDate: Date | null;
 }
 
@@ -38,7 +37,7 @@ function TimeTable({
   onDeleteTask,
   onUpdateTaskSchedule,
   onUpdateTaskDetails,
-  draggedTask,
+  draggedTaskId,
   onClearDraggedTask,
   onDragStart,
   selectedDate,
@@ -48,12 +47,11 @@ function TimeTable({
   const nowLineRef = useRef<HTMLDivElement>(null);
   const timetableBodyRef = useRef<HTMLDivElement>(null);
   const [bodyWidth, setBodyWidth] = useState(0);
-  const [editingTask, setEditingTask] = useState<TaskModel | null>(null);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [weekDays, setWeekDays] = useState<Date[]>(() => {
     const center = selectedDate || new Date();
     return getWeekDays(center);
   });
-  const { getTaskById } = useTasks();
 
   const intervalRef = useRef<number | null>(null);
 
@@ -71,7 +69,7 @@ function TimeTable({
 
   const scheduledTasks = tasks.filter((task) => {
     if (!task.scheduled) return false;
-    if (task.id === draggedTask?.id) return false;
+    if (task.id === draggedTaskId) return false;
     return weekDateKeys.includes(task.scheduled.date);
   });
 
@@ -85,6 +83,8 @@ function TimeTable({
 
   const nowLineTop = minutesToPx(nowMinutes);
   const bodyMinHeight = PX_PER_HOUR * 24;
+
+  const editingTask = editingTaskId ? tasks.find(t => t.id === editingTaskId) : null;
 
   useEffect(() => {
     const updateWidth = () => {
@@ -121,7 +121,6 @@ function TimeTable({
     };
   }, []);
 
-  // Auto scroll to current time on mount
   useEffect(() => {
     const container = timetableRef.current;
     const nowLine = nowLineRef.current;
@@ -142,14 +141,9 @@ function TimeTable({
     setWeekDays(newWeekDays);
   }, [selectedDate]);
 
-  const handleDragStart = (taskId: string, taskTitle: string) => {
-    const task = getTaskById(taskId);
-    const duration = task?.scheduled
-      ? task.scheduled.endMinutes - task.scheduled.startMinutes
-      : PX_PER_HOUR;
-
+  const handleDragStart = (taskId: string) => {
     if (onDragStart) {
-      onDragStart(taskId, taskTitle, duration);
+      onDragStart(taskId);
     }
   };
 
@@ -195,12 +189,13 @@ function TimeTable({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!draggedTask) {
+    if (!draggedTaskId) {
       return;
     }
 
-    const originalTask = getTaskById(draggedTask.id);
-    const originalSchedule = originalTask?.scheduled;
+    const task = tasks.find(t => t.id === draggedTaskId);
+    if (!task) return;
+    const schedule = task.scheduled;
 
     const rect = e.currentTarget.getBoundingClientRect();
     const y = e.clientY - rect.top;
@@ -216,18 +211,20 @@ function TimeTable({
     const clampedMinutes = clampMinutes(minutes);
     const startMinutes = roundToStep(clampedMinutes);
 
-    const duration = draggedTask.duration || PX_PER_HOUR;
+    const duration = task.scheduled
+    ? task.scheduled.endMinutes - task.scheduled.startMinutes
+    : 60;
     const endMinutes = startMinutes + duration;
 
-    const success = onUpdateTaskSchedule(draggedTask.id, {
+    const success = onUpdateTaskSchedule(draggedTaskId, {
       date: dateKey,
       startMinutes,
       endMinutes,
     });
 
     if (!success) {
-      if (originalSchedule) {
-        onUpdateTaskSchedule(draggedTask.id, originalSchedule);
+      if (schedule) {
+        onUpdateTaskSchedule(draggedTaskId, schedule);
       }
     }
 
@@ -236,7 +233,7 @@ function TimeTable({
   };
 
   const handleEditTask = (task: TaskModel) => {
-    setEditingTask(task);
+    setEditingTaskId(task.id);
   };
 
   const handleSaveTask = (
@@ -254,7 +251,7 @@ function TimeTable({
       onUpdateTaskSchedule(taskId, data.scheduled);
     }
     onUpdateTaskDetails(taskId, data.title);
-    setEditingTask(null);
+    setEditingTaskId(null);
   };
 
   return (
@@ -392,14 +389,15 @@ function TimeTable({
               onClose={() => setModalData(null)}
               onCreate={onCreateTask}
               tasks={tasks}
-            ></CreateTaskModal>
+            />
           )}
 
           {editingTask && editingTask.scheduled && (
             <EditTaskModal
-              task={editingTask as any}
+              key={editingTask.id}
+              task={editingTask}
               tasks={tasks}
-              onClose={() => setEditingTask(null)}
+              onClose={() => setEditingTaskId(null)}
               onSave={handleSaveTask}
             />
           )}

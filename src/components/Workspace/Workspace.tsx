@@ -15,31 +15,25 @@ function Workspace() {
     updateTaskDetails,
     unscheduleTask,
   } = useTasks();
-  const draggedTaskRef = useRef<{
-    id: string;
-    title: string;
-    duration?: number;
-  } | null>(null);
+  const draggedTaskIdRef = useRef<string | null>(null);
   const [, forceUpdate] = useState({});
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const handleDragStart = (
     taskId: string,
-    taskTitle: string,
-    duration?: number,
   ) => {
-    draggedTaskRef.current = { id: taskId, title: taskTitle, duration };
+    draggedTaskIdRef.current = taskId;
     forceUpdate({});
   };
 
   const handleDragEnd = () => {
-    draggedTaskRef.current = null;
+    draggedTaskIdRef.current = null;
     forceUpdate({});
   };
 
   const handleLibraryDrop = (taskId: string) => {
     unscheduleTask(taskId);
-    draggedTaskRef.current = null;
+    draggedTaskIdRef.current = null;
     forceUpdate({});
   };
 
@@ -56,9 +50,9 @@ function Workspace() {
         onDeleteTask={deleteTask}
         onUpdateTaskSchedule={updateTaskSchedule}
         onUpdateTaskDetails={updateTaskDetails}
-        draggedTask={draggedTaskRef.current}
+        draggedTaskId={draggedTaskIdRef.current}
         onClearDraggedTask={() => {
-          draggedTaskRef.current = null;
+          draggedTaskIdRef.current = null;
           forceUpdate({});
         }}
         onDragStart={handleDragStart}
@@ -73,7 +67,7 @@ function Workspace() {
         <TaskLibrary
           tasks={tasks}
           onCreateTask={createTask}
-          draggedTask={draggedTaskRef.current}
+          draggedTaskId={draggedTaskIdRef.current}
           onUpdateTaskDetails={updateTaskDetails}
           onDragEnd={handleDragEnd}
           onDragStart={handleDragStart}

@@ -10,7 +10,7 @@ interface TaskLibraryProps {
   tasks: TaskModel[];
   onCreateTask: (data: any) => void;
   onUpdateTaskDetails: (taskId: string, title: string) => void;
-  draggedTask: { id: string; title: string } | null;
+  draggedTaskId: string | null;
   onDragStart: (taskId: string, taskTitle: string, duration: number) => void;
   onDragEnd: () => void;
   onDrop: (taskId: string) => void;
@@ -21,7 +21,7 @@ function TaskLibrary({
   tasks,
   onCreateTask,
   onUpdateTaskDetails,
-  draggedTask,
+  draggedTaskId,
   onDragStart,
   onDragEnd,
   onDrop,
@@ -34,10 +34,8 @@ function TaskLibrary({
   const [editValue, setEditValue] = useState("");
 
   const unscheduledTasks = tasks.filter(
-    (task) => !task.scheduled && task.id !== draggedTask?.id,
+    (task) => !task.scheduled && task.id !== draggedTaskId,
   );
-
-  const { getTaskById } = useTasks();
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -96,8 +94,7 @@ function TaskLibrary({
       console.error(`Could not set dataTransfer`);
     }
 
-    const task = getTaskById(taskId);
-    const duration = task?._duration || 60;
+    const duration = 60;
 
     setTimeout(() => {
       onDragStart(taskId, taskTitle, duration);
@@ -123,8 +120,8 @@ function TaskLibrary({
     setIsDragOver(false);
     setIsDeleteDragOver(false);
 
-    if (draggedTask) {
-      onDrop(draggedTask.id);
+    if (draggedTaskId) {
+      onDrop(draggedTaskId);
     }
   };
 
@@ -146,8 +143,8 @@ function TaskLibrary({
     setIsDeleteDragOver(false);
     setIsDragOver(false);
 
-    if (draggedTask && confirm("Delete this task?")) {
-      onDeleteTask(draggedTask.id);
+    if (draggedTaskId && confirm("Delete this task?")) {
+      onDeleteTask(draggedTaskId);
       onDragEnd();
     }
   };
@@ -168,7 +165,7 @@ function TaskLibrary({
           onDragLeave={handleDeleteDragLeave}
           onDrop={handleDeleteDrop}
         >
-          {draggedTask ? <img src={deleteIcon} /> : <img src={addIcon} />}
+          {draggedTaskId ? <img src={deleteIcon} /> : <img src={addIcon} />}
         </button>
         <div className="task-library__list">
           {unscheduledTasks.map((task) => (
